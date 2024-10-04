@@ -1,0 +1,32 @@
+﻿@model IEnumerable<HavucDent.Domain.Entities.AccessControl>
+
+<h2>Access Control List</h2>
+
+<table class="table">
+	<thead>
+	<tr>
+		<th>Role Name</th>
+		<th>Controller Name</th>
+		<th>Action Name</th>
+		<th></th>
+	</tr>
+	</thead>
+	<tbody>
+	@foreach (var item in Model)
+	{
+		<tr>
+			<td>@item.RoleName</td>
+			<td>@item.ControllerName</td>
+			<td>@item.ActionName</td>
+			<td>
+				<form asp-action="DeleteAccessControl" method="post">
+					<input type="hidden" name="id" value="@item.Id" />
+					<button type="submit" class="btn btn-danger">Delete</button>
+				</form>
+			</td>
+		</tr>
+	}
+	</tbody>
+</table>
+
+<a class="btn btn-primary" asp-action="AddAccessControl">Add Access Control</a>
