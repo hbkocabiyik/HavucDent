@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace HavucDent.Domain.Entities
 {
     public class Product
     {
         public int Id { get; set; }
-        public string ProductName { get; set; }
+        public string Name { get; set; }
         public string ProductCode { get; set; }
-        public decimal UnitPrice { get; set; }
-        public int StockQuantity { get; set; }
+        public decimal UnitPrice { get; set; } // Ürün birim fiyatı
+        public int StockQuantity { get; set; } // Stok adedi
 
         public virtual ICollection<Appointment> Appointments { get; set; } // Ürünün kullanıldığı randevular
     }

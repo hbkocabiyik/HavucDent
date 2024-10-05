@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HavucDent.Domain.Entities
 {
@@ -25,5 +22,6 @@ namespace HavucDent.Domain.Entities
 
         public decimal TotalFee { get; set; } // Randevu ve tedavi için alınan toplam ücret
         public bool PaymentStatus { get; set; } // Ödeme durumu (True: Ödenmiş, False: Ödenmemiş)
+        public bool IsCompleted { get; set; } // Randevu tamamlandı mı?
     }
 }

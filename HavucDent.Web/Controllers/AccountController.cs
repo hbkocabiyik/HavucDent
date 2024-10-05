@@ -1,4 +1,6 @@
 ﻿using HavucDent.Domain.Entities;
+using HavucDent.Infrastructure.Identity;
+using HavucDent.Web.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,10 +8,10 @@ namespace HavucDent.Web.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly SignInManager<User> _signInManager;
-        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<AppUser> _signInManager;
+        private readonly UserManager<AppUser> _userManager;
 
-        public AccountController(SignInManager<User> signInManager, UserManager<User> userManager)
+        public AccountController(SignInManager<AppUser> signInManager, UserManager<AppUser> userManager)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -22,13 +24,13 @@ namespace HavucDent.Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(string email, string password)
-        {
-            var user = await _userManager.FindByEmailAsync(email);
+        public async Task<IActionResult> Login(LoginViewModel model)
+        { 
+            var user = await _userManager.FindByEmailAsync(model.Email);
 
             if (user != null)
             {
-                var result = await _signInManager.PasswordSignInAsync(user, password, false, false);
+                var result = await _signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, false);
 
                 if (result.Succeeded)
                 {

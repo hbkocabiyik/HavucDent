@@ -3,15 +3,16 @@ using HavucDent.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
+using HavucDent.Infrastructure.Identity;
 
 namespace HavucDent.Web.Filters
 {
     public class AccessControlFilter : IAsyncActionFilter
     {
         private readonly HavucDbContext _context;
-        private readonly UserManager<User> _userManager;
+        private readonly UserManager<AppUser> _userManager; // AppUser kullanımı
 
-        public AccessControlFilter(HavucDbContext context, UserManager<User> userManager)
+        public AccessControlFilter(HavucDbContext context, UserManager<AppUser> userManager)
         {
             _context = context;
             _userManager = userManager;

@@ -1,4 +1,5 @@
 ﻿using HavucDent.Domain.Entities;
+using HavucDent.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 
 namespace HavucDent.Web.Extentions
@@ -9,7 +10,7 @@ namespace HavucDent.Web.Extentions
         {
             using var scope = app.ApplicationServices.CreateScope();
             var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
 
             string[] roles = new string[] { "Admin", "Doctor", "Assistant" };
 
@@ -23,17 +24,17 @@ namespace HavucDent.Web.Extentions
             }
 
             // İlk yönetici kullanıcısı oluşturulacak
-            var adminEmail = "admin@admin.com";
+            var adminEmail = "hbkocabiyik@gmail.com";
             var adminPassword = "Admin123!"; // Şifre şifrelenerek saklanacak
 
             if (await userManager.FindByEmailAsync(adminEmail) == null)
             {
-                var adminUser = new User
+                var adminUser = new AppUser
                 {
                     UserName = adminEmail,
                     Email = adminEmail,
-                    FirstName = "Admin",
-                    LastName = "User",
+                    FirstName = "Hüseyin Burak",
+                    LastName = "Kocabıyık",
                     EmailConfirmed = true
                 };
 

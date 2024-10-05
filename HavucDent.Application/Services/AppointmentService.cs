@@ -41,5 +41,22 @@ namespace HavucDent.Application.Services
             _context.Appointments.Add(appointment);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<Appointment> CreateAppointment(int doctorId, int patientId, DateTime appointmentDate, decimal totalFee)
+        {
+            var appointment = new Appointment
+            {
+                DoctorId = doctorId,
+                PatientId = patientId,
+                AppointmentDate = appointmentDate,
+                TotalFee = totalFee,
+                IsAvailable = false,  // Randevu alındıktan sonra artık müsait olmayacak
+                PaymentStatus = false // Başlangıçta ödeme yapılmamış
+            };
+
+            _context.Appointments.Add(appointment);
+            await _context.SaveChangesAsync();
+            return appointment;
+        }
     }
 }

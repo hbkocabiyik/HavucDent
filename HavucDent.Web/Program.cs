@@ -1,20 +1,12 @@
 using HavucDent.Domain.Entities;
+using HavucDent.Infrastructure.Identity;
 using HavucDent.Infrastructure.Persistence;
 using HavucDent.Web.Extentions;
 using HavucDent.Web.Filters;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
-
-
-// Add services to the container.
-builder.Services.AddControllersWithViews(options =>
-{
-    options.Filters.Add<AccessControlFilter>(); // Dinamik yetkilendirme filtresi eklendi
-});
-
 
 // DbContext konfigürasyonu
 builder.Services.AddDbContext<HavucDbContext>(options =>
@@ -22,9 +14,16 @@ builder.Services.AddDbContext<HavucDbContext>(options =>
 
 
 // Identity konfigürasyonu
-builder.Services.AddIdentity<User, IdentityRole>()
+builder.Services.AddIdentity<AppUser, IdentityRole>()
     .AddEntityFrameworkStores<HavucDbContext>()
     .AddDefaultTokenProviders();
+
+
+// Add services to the container.
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add<AccessControlFilter>(); // Dinamik yetkilendirme filtresi eklendi
+});
 
 var app = builder.Build();
 
@@ -49,7 +48,7 @@ await app.SeedRolesAndAdminAsync();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Account}/{action=Login}/{id?}");
 
 
 

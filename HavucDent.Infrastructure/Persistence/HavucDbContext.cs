@@ -1,14 +1,12 @@
 ﻿using HavucDent.Domain.Entities;
+using HavucDent.Infrastructure.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HavucDent.Infrastructure.Persistence
 {
-    public class HavucDbContext : DbContext
+    public class HavucDbContext : IdentityDbContext<AppUser>
     {
         public HavucDbContext(DbContextOptions<HavucDbContext> options) : base(options)
         {

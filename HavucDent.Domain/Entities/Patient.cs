@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace HavucDent.Domain.Entities
 {
@@ -16,6 +12,8 @@ namespace HavucDent.Domain.Entities
         public string PhoneNumber { get; set; }
         public string Address { get; set; }
 
-        public virtual ICollection<Appointment> Appointments { get; set; }
+        public bool IsPaymentCompleted { get; set; } // Ödeme tamamlandı mı? 
+
+        public virtual ICollection<Appointment> Appointments { get; set; } // Hastanın randevuları
     }
 }

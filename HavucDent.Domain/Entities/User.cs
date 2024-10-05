@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace HavucDent.Domain.Entities
 {
-    public abstract class User 
+    public class User 
     {
         public int Id { get; set; }
         public string FirstName { get; set; }
@@ -20,9 +15,6 @@ namespace HavucDent.Domain.Entities
         public DateTime HireDate { get; set; }
         public DateTime SalaryPaymentDate { get; set; }
         public int AnnualLeaveDays { get; set; } // Yıllık izin gün sayısı
-        public string UserName { get; set; }
-        public string Password { get; set; }
-
         public bool EmailConfirmed { get; set; }
 
         public virtual ICollection<LeaveHistory> LeaveHistories { get; set; } // İzin geçmişi
