@@ -30,8 +30,7 @@ steps:
 - task: UseDotNet@2
   inputs:
     packageType: 'sdk'
-    version: '5.x'
-    installationPath: $(Agent.ToolsDirectory)/dotnet
+    version: '8.x'
 
 - script: dotnet restore
   displayName: 'Restore NuGet packages'
