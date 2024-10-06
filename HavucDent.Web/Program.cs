@@ -46,6 +46,19 @@ app.UseAuthorization();
 // Veritabaný Seed iþlemi (Roller ve Yönetici kullanýcýsýný ekleme)
 await app.SeedRolesAndAdminAsync();
 
+// Access Denied ve Unauthorized yönlendirme
+app.UseStatusCodePages(async context =>
+{
+    if (context.HttpContext.Response.StatusCode == 403)
+    {
+        context.HttpContext.Response.Redirect("/Account/AccessDenied");
+    }
+    else if (context.HttpContext.Response.StatusCode == 401)
+    {
+        context.HttpContext.Response.Redirect("/Account/Login");
+    }
+});
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Account}/{action=Login}/{id?}");
