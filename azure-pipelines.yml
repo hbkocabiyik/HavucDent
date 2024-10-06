@@ -3,19 +3,48 @@
 # Add steps that run tests, create a NuGet package, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
+#trigger:
+#- master
+#
+#pool:
+#  vmImage: ubuntu-latest
+#
+#variables:
+#  buildConfiguration: 'Release'
+#
+#
+#steps:
+#- script: dotnet restore
+#  displayName: 'Restore NuGet packages'
+#  
+#- script: dotnet build --configuration $(buildConfiguration)
+#  displayName: 'dotnet build $(buildConfiguration)'
+#
 trigger:
-- master
+- main  # 'main' branch'e commit yapıldığında tetiklenecek
 
 pool:
-  vmImage: ubuntu-latest
-
-variables:
-  buildConfiguration: 'Release'
-
+  vmImage: 'ubuntu-latest'
 
 steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '5.x'
+    installationPath: $(Agent.ToolsDirectory)/dotnet
+
 - script: dotnet restore
   displayName: 'Restore NuGet packages'
-  
-- script: dotnet build --configuration $(buildConfiguration)
-  displayName: 'dotnet build $(buildConfiguration)'
+
+- script: dotnet build --configuration Release --no-restore
+  displayName: 'Build the project'
+
+- script: dotnet test --configuration Release --no-build
+  displayName: 'Run unit tests'
+
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: 'havucCICD'
+    appType: 'webApp'
+    appName: 'havucdent'
+    package: $(System.DefaultWorkingDirectory)/**/*.zip
