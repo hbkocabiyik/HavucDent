@@ -4,6 +4,7 @@ using HavucDent.Infrastructure.Persistence;
 using HavucDent.Web.Extentions;
 using HavucDent.Web.Filters;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,8 +23,14 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
 // Add services to the container.
 builder.Services.AddControllersWithViews(options =>
 {
+    options.Filters.Add(new AuthorizeFilter()); // Tüm controller'lara yetkilendirme zorunluluðu
     options.Filters.Add<AccessControlFilter>(); // Dinamik yetkilendirme filtresi eklendi
 });
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
+}
 
 var app = builder.Build();
 
@@ -34,6 +41,7 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

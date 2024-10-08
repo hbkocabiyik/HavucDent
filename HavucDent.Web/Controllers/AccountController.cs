@@ -1,6 +1,7 @@
 ﻿using HavucDent.Domain.Entities;
 using HavucDent.Infrastructure.Identity;
 using HavucDent.Web.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,12 +19,14 @@ namespace HavucDent.Web.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Login()
         {
             return View();
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(LoginViewModel model)
         { 
             var user = await _userManager.FindByEmailAsync(model.Email);
@@ -46,7 +49,7 @@ namespace HavucDent.Web.Controllers
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Login", "Account");
         }
     }
 }
