@@ -1,6 +1,9 @@
+using HavucDent.Application.Interfaces;
+using HavucDent.Application.Services;
 using HavucDent.Common.Logging;
 using HavucDent.Infrastructure.Identity;
 using HavucDent.Infrastructure.Persistence;
+using HavucDent.Infrastructure.UnitOfWork;
 using HavucDent.Web.Extentions;
 using HavucDent.Web.Filters;
 using HavucDent.Web.Logging;
@@ -33,6 +36,13 @@ builder.Services.AddSingleton<ILoggerManager, LoggerManager>();
 builder.Logging.ClearProviders();
 builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
 builder.Host.UseNLog(); // NLog'u kullanmak için
+
+#region Services
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IProductService, ProductService>();
+
+#endregion
 
 
 // Add services to the container.
