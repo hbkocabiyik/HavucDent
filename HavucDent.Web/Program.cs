@@ -1,11 +1,15 @@
-using HavucDent.Domain.Entities;
+using HavucDent.Common.Logging;
 using HavucDent.Infrastructure.Identity;
 using HavucDent.Infrastructure.Persistence;
 using HavucDent.Web.Extentions;
 using HavucDent.Web.Filters;
+using HavucDent.Web.Logging;
+using HavucDent.Web.Middleware;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
+using NLog;
+using NLog.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +24,17 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
     .AddDefaultTokenProviders();
 
 
+// NLog yapýlandýrmasýný yükleme
+LogManager.LoadConfiguration(String.Concat(Directory.GetCurrentDirectory(), "/nlog.config"));
+
+// Logging servisini DI ekleme
+builder.Services.AddSingleton<ILoggerManager, LoggerManager>();
+
+builder.Logging.ClearProviders();
+builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+builder.Host.UseNLog(); // NLog'u kullanmak için
+
+
 // Add services to the container.
 builder.Services.AddControllersWithViews(options =>
 {
@@ -31,6 +46,7 @@ if (builder.Environment.IsDevelopment())
 {
     builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 }
+
 
 var app = builder.Build();
 
@@ -47,6 +63,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseMiddleware<RequestLoggingMiddleware>(); // Loglama Middleware
 
 app.UseAuthentication(); // Kimlik doðrulama iþlemleri
 app.UseAuthorization();
