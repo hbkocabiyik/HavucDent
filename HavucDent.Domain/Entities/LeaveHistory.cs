@@ -1,5 +1,4 @@
-﻿using System;
-    
+﻿
 namespace HavucDent.Domain.Entities
 {
     public class LeaveHistory

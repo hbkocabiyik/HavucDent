@@ -1,62 +1,83 @@
-﻿using HavucDent.Domain.Entities;
+﻿using HavucDent.Application.Interfaces;
+using HavucDent.Domain.Entities;
 using HavucDent.Infrastructure.Persistence;
+using HavucDent.Infrastructure.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 
 namespace HavucDent.Application.Services
 {
-    public class AppointmentService
+    public class AppointmentService : IAppointmentService
     {
-        private readonly HavucDbContext _context;
 
-        public AppointmentService(HavucDbContext context)
+        private readonly IUnitOfWork _unitOfWork;
+
+        public AppointmentService(IUnitOfWork unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
-        public async Task<bool> IsDoctorAvailable(int doctorId, DateTime appointmentDate)
+        public async Task AddAppointmentAsync(Appointment appointment)
         {
-            var appointment = await _context.Appointments
-                .Where(a => a.DoctorId == doctorId && a.AppointmentDate == appointmentDate)
-                .FirstOrDefaultAsync();
-
-            return appointment == null || appointment.IsAvailable;
+            await _unitOfWork.Appointments.AddAsync(appointment);
+            await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task AssignDoctorToAppointment(int patientId, DateTime appointmentDate)
+        public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync()
         {
-            var availableDoctor = await _context.Doctors
-                .Where(d => !d.Appointments.Any(a => a.AppointmentDate == appointmentDate && !a.IsAvailable))
-                .FirstOrDefaultAsync();
-
-            if (availableDoctor == null)
-                throw new Exception("No available doctors at this time.");
-
-            var appointment = new Appointment
-            {
-                DoctorId = availableDoctor.Id,
-                AppointmentDate = appointmentDate,
-                IsAvailable = false
-            };
-
-            _context.Appointments.Add(appointment);
-            await _context.SaveChangesAsync();
+            return await _unitOfWork.Appointments.GetAllAsync();
         }
 
-        public async Task<Appointment> CreateAppointment(int doctorId, int patientId, DateTime appointmentDate, decimal totalFee)
-        {
-            var appointment = new Appointment
-            {
-                DoctorId = doctorId,
-                PatientId = patientId,
-                AppointmentDate = appointmentDate,
-                TotalFee = totalFee,
-                IsAvailable = false,  // Randevu alındıktan sonra artık müsait olmayacak
-                PaymentStatus = false // Başlangıçta ödeme yapılmamış
-            };
+        //private readonly HavucDbContext _context;
 
-            _context.Appointments.Add(appointment);
-            await _context.SaveChangesAsync();
-            return appointment;
-        }
+        //public AppointmentService(HavucDbContext context)
+        //{
+        //    _context = context;
+        //}
+
+        //public async Task<bool> IsDoctorAvailable(int doctorId, DateTime appointmentDate)
+        //{
+        //    var appointment = await _context.Appointments
+        //        .Where(a => a.DoctorId == doctorId && a.AppointmentDate == appointmentDate)
+        //        .FirstOrDefaultAsync();
+
+        //    return appointment == null || appointment.IsAvailable;
+        //}
+
+        //public async Task AssignDoctorToAppointment(int patientId, DateTime appointmentDate)
+        //{
+        //    var availableDoctor = await _context.Doctors
+        //        .Where(d => !d.Appointments.Any(a => a.AppointmentDate == appointmentDate && !a.IsAvailable))
+        //        .FirstOrDefaultAsync();
+
+        //    if (availableDoctor == null)
+        //        throw new Exception("No available doctors at this time.");
+
+        //    var appointment = new Appointment
+        //    {
+        //        DoctorId = availableDoctor.Id,
+        //        AppointmentDate = appointmentDate,
+        //        IsAvailable = false
+        //    };
+
+        //    _context.Appointments.Add(appointment);
+        //    await _context.SaveChangesAsync();
+        //}
+
+        //public async Task<Appointment> CreateAppointment(int doctorId, int patientId, DateTime appointmentDate, decimal totalFee)
+        //{
+        //    var appointment = new Appointment
+        //    {
+        //        DoctorId = doctorId,
+        //        PatientId = patientId,
+        //        AppointmentDate = appointmentDate,
+        //        TotalFee = totalFee,
+        //        IsAvailable = false,  // Randevu alındıktan sonra artık müsait olmayacak
+        //        PaymentStatus = false // Başlangıçta ödeme yapılmamış
+        //    };
+
+        //    _context.Appointments.Add(appointment);
+        //    await _context.SaveChangesAsync();
+        //    return appointment;
+        //}
     }
 }

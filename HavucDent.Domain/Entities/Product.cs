@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-
+﻿
 namespace HavucDent.Domain.Entities
 {
     public class Product
