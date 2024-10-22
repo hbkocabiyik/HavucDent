@@ -21,5 +21,8 @@ namespace HavucDent.Domain.Entities
         public decimal TotalFee { get; set; } // Randevu ve tedavi için alınan toplam ücret
         public bool PaymentStatus { get; set; } // Ödeme durumu (True: Ödenmiş, False: Ödenmemiş)
         public bool IsCompleted { get; set; } // Randevu tamamlandı mı?
+
+        public virtual ICollection<AppointmentLaboratory> AppointmentLaboratories { get; set; } // Randevuda kullanılan laboratuvar masrafları
     }
 }
+

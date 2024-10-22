@@ -22,6 +22,8 @@ namespace HavucDent.Infrastructure.Persistence
         public DbSet<LeaveHistory> LeaveHistories { get; set; }
         public DbSet<SalaryHistory> SalaryHistories { get; set; }
         public DbSet<AccessControl> AccessControls { get; set; }
+        public DbSet<Laboratory> Laboratories { get; set; } 
+        public DbSet<AppointmentLaboratory> AppointmentLaboratories { get; set; } 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -69,6 +71,17 @@ namespace HavucDent.Infrastructure.Persistence
                 .HasOne(s => s.User)
                 .WithMany(u => u.SalaryHistories)
                 .HasForeignKey(s => s.UserId);
+
+            // Appointment - AppointmentLaboratory ilişkisi (Many:Many)
+            modelBuilder.Entity<AppointmentLaboratory>()
+                .HasOne(al => al.Appointment)
+                .WithMany(a => a.AppointmentLaboratories)
+                .HasForeignKey(al => al.AppointmentId);
+
+            modelBuilder.Entity<AppointmentLaboratory>()
+                .HasOne(al => al.Laboratory)
+                .WithMany(l => l.AppointmentLaboratories)
+                .HasForeignKey(al => al.LaboratoryId);
 
             base.OnModelCreating(modelBuilder);
         }
