@@ -7,42 +7,42 @@ namespace HavucDent.Infrastructure.Repositories
     public class Repository<T> : IRepository<T> where T : class
     {
         private readonly HavucDbContext _context;
-        private readonly DbSet<T> _entities;
+        private readonly DbSet<T> _dbSet;
 
         public Repository(HavucDbContext context)
         {
             _context = context;
-            _entities = _context.Set<T>();
+            _dbSet = _context.Set<T>();
         }
 
         public async Task<IEnumerable<T>> GetAllAsync()
         {
-            return await _entities.ToListAsync();
+            return await _dbSet.ToListAsync();
         }
 
         public async Task<T> GetByIdAsync(int id)
         {
-            return await _entities.FindAsync(id);
+            return await _dbSet.FindAsync(id);
         }
 
         public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
         {
-            return await _entities.Where(predicate).ToListAsync();
+            return await _dbSet.Where(predicate).ToListAsync();
         }
 
         public async Task AddAsync(T entity)
         {
-            await _entities.AddAsync(entity);
+            await _dbSet.AddAsync(entity);
         }
 
         public void Update(T entity)
         {
-            _entities.Update(entity);
+            _dbSet.Update(entity);
         }
 
         public void Remove(T entity)
         {
-            _entities.Remove(entity);
+            _dbSet.Remove(entity);
         }
 
         public async Task SaveChangesAsync()

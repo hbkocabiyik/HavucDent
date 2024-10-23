@@ -1,83 +1,45 @@
 ﻿using HavucDent.Application.Interfaces;
 using HavucDent.Domain.Entities;
-using HavucDent.Infrastructure.Persistence;
-using HavucDent.Infrastructure.UnitOfWork;
-using Microsoft.EntityFrameworkCore;
+using HavucDent.Infrastructure.Repositories;
 
 namespace HavucDent.Application.Services
 {
     public class AppointmentService : IAppointmentService
     {
+        private readonly IRepository<Appointment> _appointmentRepository;
 
-        private readonly IUnitOfWork _unitOfWork;
-
-        public AppointmentService(IUnitOfWork unitOfWork)
+        public AppointmentService(IRepository<Appointment> appointmentRepository)
         {
-            _unitOfWork = unitOfWork;
+            _appointmentRepository = appointmentRepository;
         }
 
         public async Task AddAppointmentAsync(Appointment appointment)
         {
-            await _unitOfWork.Appointments.AddAsync(appointment);
-            await _unitOfWork.SaveChangesAsync();
+            await _appointmentRepository.AddAsync(appointment);
         }
 
         public async Task<IEnumerable<Appointment>> GetAllAppointmentsAsync()
         {
-            return await _unitOfWork.Appointments.GetAllAsync();
+            return await _appointmentRepository.GetAllAsync();
         }
 
-        //private readonly HavucDbContext _context;
+        public async Task<Appointment> GetAppointmentByIdAsync(int id)
+        {
+            return await _appointmentRepository.GetByIdAsync(id);
+        }
 
-        //public AppointmentService(HavucDbContext context)
-        //{
-        //    _context = context;
-        //}
+        public async Task UpdateAppointmentAsync(Appointment appointment)
+        {
+            _appointmentRepository.Update(appointment);
+        }
 
-        //public async Task<bool> IsDoctorAvailable(int doctorId, DateTime appointmentDate)
-        //{
-        //    var appointment = await _context.Appointments
-        //        .Where(a => a.DoctorId == doctorId && a.AppointmentDate == appointmentDate)
-        //        .FirstOrDefaultAsync();
-
-        //    return appointment == null || appointment.IsAvailable;
-        //}
-
-        //public async Task AssignDoctorToAppointment(int patientId, DateTime appointmentDate)
-        //{
-        //    var availableDoctor = await _context.Doctors
-        //        .Where(d => !d.Appointments.Any(a => a.AppointmentDate == appointmentDate && !a.IsAvailable))
-        //        .FirstOrDefaultAsync();
-
-        //    if (availableDoctor == null)
-        //        throw new Exception("No available doctors at this time.");
-
-        //    var appointment = new Appointment
-        //    {
-        //        DoctorId = availableDoctor.Id,
-        //        AppointmentDate = appointmentDate,
-        //        IsAvailable = false
-        //    };
-
-        //    _context.Appointments.Add(appointment);
-        //    await _context.SaveChangesAsync();
-        //}
-
-        //public async Task<Appointment> CreateAppointment(int doctorId, int patientId, DateTime appointmentDate, decimal totalFee)
-        //{
-        //    var appointment = new Appointment
-        //    {
-        //        DoctorId = doctorId,
-        //        PatientId = patientId,
-        //        AppointmentDate = appointmentDate,
-        //        TotalFee = totalFee,
-        //        IsAvailable = false,  // Randevu alındıktan sonra artık müsait olmayacak
-        //        PaymentStatus = false // Başlangıçta ödeme yapılmamış
-        //    };
-
-        //    _context.Appointments.Add(appointment);
-        //    await _context.SaveChangesAsync();
-        //    return appointment;
-        //}
+        public async Task DeleteAppointmentAsync(int id)
+        {
+            var appointment = await _appointmentRepository.GetByIdAsync(id);
+            if (appointment != null)
+            {
+                _appointmentRepository.Remove(appointment);
+            }
+        }
     }
 }

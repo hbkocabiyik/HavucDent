@@ -1,7 +1,12 @@
 ﻿using HavucDent.Domain.Entities;
 
-namespace HavucDent.Application.Interfaces
+namespace HavucDent.Infrastructure.Repositories
 {
+    //public interface ILaboratoryRepository : IRepository<Laboratory>
+    //{
+    //    // İhtiyaca göre ek metodlar tanımlanabilir
+    //}
+
     public interface ILaboratoryService
     {
         Task<IEnumerable<Laboratory>> GetAllLaboratoriesAsync();

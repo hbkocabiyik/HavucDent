@@ -1,7 +1,6 @@
 ﻿using HavucDent.Application.Interfaces;
 using HavucDent.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace HavucDent.Web.Controllers
 {
@@ -14,24 +13,79 @@ namespace HavucDent.Web.Controllers
             _productService = productService;
         }
 
+        // GET: Product/Index
+        public async Task<IActionResult> Index()
+        {
+            var products = await _productService.GetAllProductsAsync();
+            return View(products);
+        }
+
+        // GET: Product/Create
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: Product/Create
         [HttpPost]
-        public async Task<IActionResult> AddProduct(Product product)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Product product)
         {
             if (ModelState.IsValid)
             {
                 await _productService.AddProductAsync(product);
-
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
-            return View(product); // Eğer model hatalıysa aynı sayfaya dön
+            return View(product);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Index()
+        // GET: Product/Edit/5
+        public async Task<IActionResult> Edit(int id)
         {
-            var products = await _productService.GetAllProductsAsync();
-            return View(products); // Ürünleri listele
+            var product = await _productService.GetProductByIdAsync(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+            return View(product);
+        }
+
+        // POST: Product/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Product product)
+        {
+            if (id != product.Id)
+            {
+                return BadRequest();
+            }
+
+            if (ModelState.IsValid)
+            {
+                await _productService.UpdateProductAsync(product);
+                return RedirectToAction(nameof(Index));
+            }
+            return View(product);
+        }
+
+        // GET: Product/Delete/5
+        public async Task<IActionResult> Delete(int id)
+        {
+            var product = await _productService.GetProductByIdAsync(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+            return View(product);
+        }
+
+        // POST: Product/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            await _productService.DeleteProductAsync(id);
+            return RedirectToAction(nameof(Index));
         }
     }
 }
-

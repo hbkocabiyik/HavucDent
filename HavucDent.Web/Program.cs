@@ -1,8 +1,10 @@
 using HavucDent.Application.Interfaces;
 using HavucDent.Application.Services;
 using HavucDent.Common.Logging;
+using HavucDent.Domain.Entities;
 using HavucDent.Infrastructure.Identity;
 using HavucDent.Infrastructure.Persistence;
+using HavucDent.Infrastructure.Repositories;
 using HavucDent.Infrastructure.UnitOfWork;
 using HavucDent.Web.Extentions;
 using HavucDent.Web.Filters;
@@ -26,7 +28,6 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
     .AddEntityFrameworkStores<HavucDbContext>()
     .AddDefaultTokenProviders();
 
-
 // NLog yapýlandýrmasýný yükleme
 LogManager.LoadConfiguration(String.Concat(Directory.GetCurrentDirectory(), "/nlog.config"));
 
@@ -41,7 +42,16 @@ builder.Host.UseNLog(); // NLog'u kullanmak için
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<ILaboratoryService, LaboratoryService>();
+
+#endregion
+
+#region Repositories
+
+builder.Services.AddScoped<IRepository<Appointment>, AppointmentRepository>();
+builder.Services.AddScoped<IRepository<Product>, ProductRepository>();
+builder.Services.AddScoped<IRepository<Laboratory>, LaboratoryRepository>();
 
 #endregion
 
@@ -68,7 +78,6 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

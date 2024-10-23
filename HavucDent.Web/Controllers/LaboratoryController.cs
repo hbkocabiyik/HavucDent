@@ -1,7 +1,6 @@
-﻿using HavucDent.Application.Interfaces;
-using HavucDent.Domain.Entities;
+﻿using HavucDent.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
+using HavucDent.Infrastructure.Repositories;
 
 namespace HavucDent.Web.Controllers
 {
@@ -14,34 +13,33 @@ namespace HavucDent.Web.Controllers
             _laboratoryService = laboratoryService;
         }
 
-        // GET: /Laboratory/Index
+        // GET: Laboratory/Index
         public async Task<IActionResult> Index()
         {
             var laboratories = await _laboratoryService.GetAllLaboratoriesAsync();
             return View(laboratories);
         }
 
-        // GET: /Laboratory/Create
-        [HttpGet]
+        // GET: Laboratory/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: /Laboratory/Create
+        // POST: Laboratory/Create
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Laboratory laboratory)
         {
             if (ModelState.IsValid)
             {
                 await _laboratoryService.AddLaboratoryAsync(laboratory);
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
             return View(laboratory);
         }
 
-        // GET: /Laboratory/Edit/{id}
-        [HttpGet]
+        // GET: Laboratory/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
             var laboratory = await _laboratoryService.GetLaboratoryByIdAsync(id);
@@ -52,20 +50,25 @@ namespace HavucDent.Web.Controllers
             return View(laboratory);
         }
 
-        // POST: /Laboratory/Edit/{id}
+        // POST: Laboratory/Edit/5
         [HttpPost]
-        public async Task<IActionResult> Edit(Laboratory laboratory)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Laboratory laboratory)
         {
+            if (id != laboratory.Id)
+            {
+                return BadRequest();
+            }
+
             if (ModelState.IsValid)
             {
                 await _laboratoryService.UpdateLaboratoryAsync(laboratory);
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
             return View(laboratory);
         }
 
-        // GET: /Laboratory/Delete/{id}
-        [HttpGet]
+        // GET: Laboratory/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
             var laboratory = await _laboratoryService.GetLaboratoryByIdAsync(id);
@@ -76,12 +79,13 @@ namespace HavucDent.Web.Controllers
             return View(laboratory);
         }
 
-        // POST: /Laboratory/Delete/{id}
+        // POST: Laboratory/Delete/5
         [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _laboratoryService.DeleteLaboratoryAsync(id);
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
     }
 }

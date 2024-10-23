@@ -1,27 +1,47 @@
 ﻿using HavucDent.Application.Interfaces;
 using HavucDent.Domain.Entities;
-using HavucDent.Infrastructure.UnitOfWork;
+using HavucDent.Infrastructure.Repositories;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace HavucDent.Application.Services
 {
     public class ProductService : IProductService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepository<Product> _productRepository;
 
-        public ProductService(IUnitOfWork unitOfWork)
+        public ProductService(IRepository<Product> productRepository)
         {
-            _unitOfWork = unitOfWork;
+            _productRepository = productRepository;
         }
 
         public async Task AddProductAsync(Product product)
         {
-            await _unitOfWork.Products.AddAsync(product);
-            await _unitOfWork.SaveChangesAsync();
+            await _productRepository.AddAsync(product);
         }
 
         public async Task<IEnumerable<Product>> GetAllProductsAsync()
         {
-            return await _unitOfWork.Products.GetAllAsync();
+            return await _productRepository.GetAllAsync();
+        }
+
+        public async Task<Product> GetProductByIdAsync(int id)
+        {
+            return await _productRepository.GetByIdAsync(id);
+        }
+
+        public async Task UpdateProductAsync(Product product)
+        {
+            _productRepository.Update(product);
+        }
+
+        public async Task DeleteProductAsync(int id)
+        {
+            var product = await _productRepository.GetByIdAsync(id);
+            if (product != null)
+            {
+                _productRepository.Remove(product);
+            }
         }
     }
 }

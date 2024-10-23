@@ -1,47 +1,46 @@
 ﻿using HavucDent.Application.Interfaces;
 using HavucDent.Domain.Entities;
-using HavucDent.Infrastructure.UnitOfWork;
+using HavucDent.Infrastructure.Repositories;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace HavucDent.Application.Services
 {
     public class LaboratoryService : ILaboratoryService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRepository<Laboratory> _laboratoryRepository;
 
-        public LaboratoryService(IUnitOfWork unitOfWork)
+        public LaboratoryService(IRepository<Laboratory> laboratoryRepository)
         {
-            _unitOfWork = unitOfWork;
+            _laboratoryRepository = laboratoryRepository;
         }
 
         public async Task<IEnumerable<Laboratory>> GetAllLaboratoriesAsync()
         {
-            return await _unitOfWork.Laboratories.GetAllAsync();
+            return await _laboratoryRepository.GetAllAsync();
         }
 
         public async Task<Laboratory> GetLaboratoryByIdAsync(int id)
         {
-            return await _unitOfWork.Laboratories.GetByIdAsync(id);
+            return await _laboratoryRepository.GetByIdAsync(id);
         }
 
         public async Task AddLaboratoryAsync(Laboratory laboratory)
         {
-            await _unitOfWork.Laboratories.AddAsync(laboratory);
-            await _unitOfWork.SaveChangesAsync();
+            await _laboratoryRepository.AddAsync(laboratory);
         }
 
         public async Task UpdateLaboratoryAsync(Laboratory laboratory)
         {
-            _unitOfWork.Laboratories.Update(laboratory);
-            await _unitOfWork.SaveChangesAsync();
+            _laboratoryRepository.Update(laboratory);
         }
 
         public async Task DeleteLaboratoryAsync(int id)
         {
-            var laboratory = await _unitOfWork.Laboratories.GetByIdAsync(id);
+            var laboratory = await _laboratoryRepository.GetByIdAsync(id);
             if (laboratory != null)
             {
-                _unitOfWork.Laboratories.Remove(laboratory);
-                await _unitOfWork.SaveChangesAsync();
+                _laboratoryRepository.Remove(laboratory);
             }
         }
     }
