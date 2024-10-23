@@ -41,6 +41,7 @@ builder.Host.UseNLog(); // NLog'u kullanmak için
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ILaboratoryService, LaboratoryService>();
 
 #endregion
 

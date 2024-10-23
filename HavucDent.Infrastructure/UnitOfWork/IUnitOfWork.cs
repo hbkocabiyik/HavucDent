@@ -10,6 +10,7 @@ namespace HavucDent.Infrastructure.UnitOfWork
         IRepository<Doctor> Doctors { get; }
         IRepository<Assistant> Assistants { get; }
         IRepository<Patient> Patients { get; }
+        IRepository<Laboratory> Laboratories { get; }
 
         Task SaveChangesAsync();
     }
