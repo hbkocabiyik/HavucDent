@@ -3,7 +3,7 @@ using HavucDent.Infrastructure.Persistence;
 
 namespace HavucDent.Infrastructure.Repositories
 {
-    public class AppointmentRepository : Repository<Appointment>, IRepository<Appointment>
+    public class AppointmentRepository : Repository<Appointment>
     {
         public AppointmentRepository(HavucDbContext context) : base(context)
         {

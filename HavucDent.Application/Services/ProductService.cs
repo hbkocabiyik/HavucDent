@@ -1,46 +1,79 @@
 ﻿using HavucDent.Application.Interfaces;
 using HavucDent.Domain.Entities;
-using HavucDent.Infrastructure.Repositories;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using HavucDent.Infrastructure.Interfaces;
 
 namespace HavucDent.Application.Services
 {
     public class ProductService : IProductService
     {
-        private readonly IRepository<Product> _productRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ProductService(IRepository<Product> productRepository)
+        public ProductService(IUnitOfWork unitOfWork)
         {
-            _productRepository = productRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task AddProductAsync(Product product)
         {
-            await _productRepository.AddAsync(product);
+            await _unitOfWork.BeginTransactionAsync();
+
+            try
+            {
+                await _unitOfWork.Products.AddAsync(product);
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
 
         public async Task<IEnumerable<Product>> GetAllProductsAsync()
         {
-            return await _productRepository.GetAllAsync();
+            return await _unitOfWork.Products.GetAllAsync();
         }
 
         public async Task<Product> GetProductByIdAsync(int id)
         {
-            return await _productRepository.GetByIdAsync(id);
+            return await _unitOfWork.Products.GetByIdAsync(id);
         }
 
         public async Task UpdateProductAsync(Product product)
         {
-            _productRepository.Update(product);
+            await _unitOfWork.BeginTransactionAsync();
+
+            try
+            {
+                _unitOfWork.Products.Update(product);
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
 
         public async Task DeleteProductAsync(int id)
         {
-            var product = await _productRepository.GetByIdAsync(id);
-            if (product != null)
+            await _unitOfWork.BeginTransactionAsync();
+
+            try
             {
-                _productRepository.Remove(product);
+                var product = await _unitOfWork.Products.GetByIdAsync(id);
+
+                _unitOfWork.Products.Remove(product);
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitTransactionAsync();
+
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
             }
         }
     }

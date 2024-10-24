@@ -1,6 +1,7 @@
 ﻿using HavucDent.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using HavucDent.Infrastructure.Interfaces;
 
 namespace HavucDent.Infrastructure.Repositories
 {

@@ -3,6 +3,7 @@ using HavucDent.Application.Services;
 using HavucDent.Common.Logging;
 using HavucDent.Domain.Entities;
 using HavucDent.Infrastructure.Identity;
+using HavucDent.Infrastructure.Interfaces;
 using HavucDent.Infrastructure.Persistence;
 using HavucDent.Infrastructure.Repositories;
 using HavucDent.Infrastructure.UnitOfWork;
@@ -40,7 +41,7 @@ builder.Host.UseNLog(); // NLog'u kullanmak için
 
 #region Services
 
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<ILaboratoryService, LaboratoryService>();
@@ -49,9 +50,10 @@ builder.Services.AddScoped<ILaboratoryService, LaboratoryService>();
 
 #region Repositories
 
-builder.Services.AddScoped<IRepository<Appointment>, AppointmentRepository>();
-builder.Services.AddScoped<IRepository<Product>, ProductRepository>();
-builder.Services.AddScoped<IRepository<Laboratory>, LaboratoryRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>(); // UnitOfWork registration
+builder.Services.AddScoped<IRepository<Appointment>, Repository<Appointment>>(); // Appointment repository
+builder.Services.AddScoped<IRepository<Product>, Repository<Product>>(); // Product repository
+builder.Services.AddScoped<IRepository<Laboratory>, Repository<Laboratory>>(); // Laboratory repository
 
 #endregion
 

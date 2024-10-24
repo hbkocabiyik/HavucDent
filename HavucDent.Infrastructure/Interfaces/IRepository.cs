@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace HavucDent.Infrastructure.Repositories
+namespace HavucDent.Infrastructure.Interfaces
 {
     public interface IRepository<T> where T : class
     {

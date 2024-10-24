@@ -1,46 +1,79 @@
-﻿using HavucDent.Application.Interfaces;
-using HavucDent.Domain.Entities;
+﻿using HavucDent.Domain.Entities;
+using HavucDent.Infrastructure.Interfaces;
 using HavucDent.Infrastructure.Repositories;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace HavucDent.Application.Services
 {
     public class LaboratoryService : ILaboratoryService
     {
-        private readonly IRepository<Laboratory> _laboratoryRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public LaboratoryService(IRepository<Laboratory> laboratoryRepository)
+        public LaboratoryService(IUnitOfWork unitOfWork)
         {
-            _laboratoryRepository = laboratoryRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<IEnumerable<Laboratory>> GetAllLaboratoriesAsync()
         {
-            return await _laboratoryRepository.GetAllAsync();
+            return await _unitOfWork.Laboratories.GetAllAsync();
         }
 
         public async Task<Laboratory> GetLaboratoryByIdAsync(int id)
         {
-            return await _laboratoryRepository.GetByIdAsync(id);
+            return await _unitOfWork.Laboratories.GetByIdAsync(id);
         }
 
         public async Task AddLaboratoryAsync(Laboratory laboratory)
         {
-            await _laboratoryRepository.AddAsync(laboratory);
+            await _unitOfWork.BeginTransactionAsync();
+
+            try
+            {
+                await _unitOfWork.Laboratories.AddAsync(laboratory);
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
 
         public async Task UpdateLaboratoryAsync(Laboratory laboratory)
         {
-            _laboratoryRepository.Update(laboratory);
+            await _unitOfWork.BeginTransactionAsync();
+
+            try
+            {
+                _unitOfWork.Laboratories.Update(laboratory);
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
 
         public async Task DeleteLaboratoryAsync(int id)
         {
-            var laboratory = await _laboratoryRepository.GetByIdAsync(id);
-            if (laboratory != null)
+            await _unitOfWork.BeginTransactionAsync();
+
+            try
             {
-                _laboratoryRepository.Remove(laboratory);
+                var laboratory = await _unitOfWork.Laboratories.GetByIdAsync(id);
+
+                _unitOfWork.Laboratories.Remove(laboratory);
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitTransactionAsync();
+
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
             }
         }
     }

@@ -3,7 +3,7 @@ using HavucDent.Infrastructure.Persistence;
 
 namespace HavucDent.Infrastructure.Repositories
 {
-    public class ProductRepository : Repository<Product>, IRepository<Product>
+    public class ProductRepository : Repository<Product>
     {
         public ProductRepository(HavucDbContext context) : base(context)
         {
