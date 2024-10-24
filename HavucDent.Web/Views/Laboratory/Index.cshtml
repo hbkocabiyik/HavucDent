@@ -1,0 +1,71 @@
+﻿@model IEnumerable<HavucDent.Domain.Entities.Laboratory>
+
+@{
+    ViewData["Title"] = "Laboratuvar Ürünleri";
+    Layout = "~/Views/Shared/_LayoutAdminLTE.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Laboratuvar Ürünleri</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Laboratuvar Ürünleri</h3>
+                    </div>
+                    <div class="card-body">
+                        <table id="laboratoriesTable" class="table table-bordered table-striped">
+                            <thead>
+                            <tr>
+	                            <th>Şirket Adı</th>
+	                            <th>Ürün Adı</th>
+	                            <th>İşlemler</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var lab in Model)
+                                {
+	                                <tr>
+                                        
+		                                <td>@lab.CompanyName</td>
+		                                <td>@lab.ProductName</td>
+		                                <td>
+			                                <a href="@Url.Action("Edit", "Laboratory", new { id = lab.Id })" class="btn btn-warning btn-sm">Güncelle</a>
+			                                <a href="@Url.Action("Delete", "Laboratory", new { id = lab.Id })" class="btn btn-danger btn-sm">Sil</a>
+		                                </td>
+	                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#laboratoriesTable').DataTable({
+                "paging": true,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false
+            });
+        });
+    </script>
+}

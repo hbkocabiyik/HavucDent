@@ -1,0 +1,57 @@
+﻿@model HavucDent.Web.Models.LaboratoryViewModel
+
+@{
+    ViewData["Title"] = "Laboratuvar Ekleme";
+    Layout = "~/Views/Shared/_LayoutAdminLTE.cshtml";
+}
+
+<section class="content-header">
+	<div class="container-fluid">
+		<div class="row mb-2">
+			<div class="col-sm-6">
+				<h1>Laboratuvar Ekle</h1>
+			</div>
+		</div>
+	</div>
+</section>
+
+<section class="content">
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-6">
+				<!-- Genel Form -->
+				<div class="card card-primary">
+					<div class="card-header">
+						<h3 class="card-title">Yeni Laboratuvar Bilgileri</h3>
+					</div>
+
+					<!-- Form Başlangıcı -->
+					<form asp-action="Create" method="post">
+						<div class="card-body">
+							<div class="form-group">
+								<label for="Name">Laboratuvar Adı</label>
+								<input asp-for="ProductName" class="form-control" placeholder="Laboratuvar Adı" />
+								<span asp-validation-for="ProductName" class="text-danger"></span>
+							</div>
+							<div class="form-group">
+								<label for="CompanyName">Firma Adı</label>
+								<input asp-for="CompanyName" class="form-control" placeholder="Firma Adı" />
+								<span asp-validation-for="CompanyName" class="text-danger"></span>
+							</div>
+						</div>
+						<!-- /.card-body -->
+
+						<div class="card-footer">
+							<button type="submit" class="btn btn-primary">Kaydet</button>
+						</div>
+					</form>
+					<!-- Form Bitişi -->
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+@section Scripts {
+	<partial name="_ValidationScriptsPartial" />
+}
