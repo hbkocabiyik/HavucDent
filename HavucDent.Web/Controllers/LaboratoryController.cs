@@ -1,22 +1,27 @@
-﻿using HavucDent.Domain.Entities;
+﻿using AutoMapper;
+using HavucDent.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using HavucDent.Infrastructure.Repositories;
+using HavucDent.Web.Models;
 
 namespace HavucDent.Web.Controllers
 {
     public class LaboratoryController : Controller
     {
         private readonly ILaboratoryService _laboratoryService;
+        private readonly IMapper _mapper;
 
-        public LaboratoryController(ILaboratoryService laboratoryService)
+		public LaboratoryController(ILaboratoryService laboratoryService, IMapper mapper)
         {
             _laboratoryService = laboratoryService;
-        }
+            _mapper = mapper;
+		}
 
         // GET: Laboratory/Index
         public async Task<IActionResult> Index()
         {
             var laboratories = await _laboratoryService.GetAllLaboratoriesAsync();
+
             return View(laboratories);
         }
 
@@ -29,14 +34,16 @@ namespace HavucDent.Web.Controllers
         // POST: Laboratory/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Laboratory laboratory)
+        public async Task<IActionResult> Create(LaboratoryViewModel model)
         {
-            if (ModelState.IsValid)
+			if (ModelState.IsValid)
             {
-                await _laboratoryService.AddLaboratoryAsync(laboratory);
+	            var laboratory = _mapper.Map<Laboratory>(model);
+
+				await _laboratoryService.AddLaboratoryAsync(laboratory);
                 return RedirectToAction(nameof(Index));
             }
-            return View(laboratory);
+            return View(model);
         }
 
         // GET: Laboratory/Edit/5

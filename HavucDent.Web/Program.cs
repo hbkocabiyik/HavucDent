@@ -1,4 +1,5 @@
 using HavucDent.Application.Interfaces;
+using HavucDent.Application.Mappings;
 using HavucDent.Application.Services;
 using HavucDent.Common.Logging;
 using HavucDent.Domain.Entities;
@@ -23,6 +24,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<HavucDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+//AutoMapper DI ekleme
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 // Identity konfigürasyonu
 builder.Services.AddIdentity<AppUser, IdentityRole>()
