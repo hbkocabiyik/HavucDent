@@ -43,6 +43,6 @@ namespace HavucDent.Web.Filters
             }
 
             await next(); // Erişim varsa devam et
-        }
+			}
     }
 }

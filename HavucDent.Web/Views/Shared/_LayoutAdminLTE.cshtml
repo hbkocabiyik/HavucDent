@@ -16,6 +16,7 @@
 	<link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
 	<!-- Theme style -->
 	<link rel="stylesheet" href="/dist/css/adminlte.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 <!--
 `body` tag options:
@@ -297,33 +298,13 @@
 						</li>
 						
 						<li class="nav-item">
-							<a href="#" class="nav-link">
-								<i class="nav-icon fas fa-chart-pie"></i>
+							<a href="@Url.Action("Index", "Laboratory")" class="nav-link active">
+								<i class="nav-icon fas fa-edit"></i>
 								<p>
 									Laboratuvar Yönetimi
-									<i class="right fas fa-angle-left"></i>
 								</p>
 							</a>
-							<ul class="nav nav-treeview">
-								<li class="nav-item">
-									<a href="@Url.Action("Create", "Laboratory")" class="nav-link">
-										<i class="far fa-circle nav-icon"></i>
-										<p>Ürün Ekle</p>
-									</a>
-								</li>
-								<li class="nav-item">
-									<a href="@Url.Action("Index", "Laboratory")" class="nav-link">
-										<i class="far fa-circle nav-icon"></i>
-										<p>Ürün Yönetimi</p>
-									</a>
-								</li>
-								<li class="nav-item">
-									<a href="#" class="nav-link">
-										<i class="far fa-circle nav-icon"></i>
-										<p>Raporlar</p>
-									</a>
-								</li>
-							</ul>
+							
 						</li>
 
 						

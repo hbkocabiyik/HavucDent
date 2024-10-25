@@ -20,10 +20,11 @@ namespace HavucDent.Web.Controllers
         // GET: Laboratory/Index
         public async Task<IActionResult> Index()
         {
-            var laboratories = await _laboratoryService.GetAllLaboratoriesAsync();
+			var laboratories = await _laboratoryService.GetAllLaboratoriesAsync();
+			var laboratoryViewModels = _mapper.Map<IEnumerable<LaboratoryViewModel>>(laboratories);
 
-            return View(laboratories);
-        }
+			return View(laboratoryViewModels);
+		}
 
         // GET: Laboratory/Create
         public IActionResult Create()
@@ -39,12 +40,13 @@ namespace HavucDent.Web.Controllers
 			if (ModelState.IsValid)
             {
 	            var laboratory = _mapper.Map<Laboratory>(model);
-
 				await _laboratoryService.AddLaboratoryAsync(laboratory);
-                return RedirectToAction(nameof(Index));
-            }
-            return View(model);
-        }
+
+				return Json(new { success = true });
+			}
+
+			return Json(new { success = false, message = "Geçersiz veri." });
+		}
 
         // GET: Laboratory/Edit/5
         public async Task<IActionResult> Edit(int id)
@@ -54,6 +56,7 @@ namespace HavucDent.Web.Controllers
             {
                 return NotFound();
             }
+
             return View(laboratory);
         }
 
@@ -72,6 +75,7 @@ namespace HavucDent.Web.Controllers
                 await _laboratoryService.UpdateLaboratoryAsync(laboratory);
                 return RedirectToAction(nameof(Index));
             }
+
             return View(laboratory);
         }
 

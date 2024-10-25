@@ -9,7 +9,7 @@ namespace HavucDent.Application.Mappings
 		public MappingProfile()
 		{
 			// Laboratory için mapping
-			CreateMap<LaboratoryViewModel, Laboratory>();
+			CreateMap<LaboratoryViewModel, Laboratory>().ReverseMap();
 
 
 		}
