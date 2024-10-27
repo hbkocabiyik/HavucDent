@@ -1,174 +1,282 @@
 ﻿@model IEnumerable<HavucDent.Web.Models.LaboratoryViewModel>
 
 @{
-	ViewData["Title"] = "Laboratuvar Ürünleri";
-	Layout = "~/Views/Shared/_LayoutAdminLTE.cshtml";
+    ViewData["Title"] = "Laboratuvar Ürünleri";
+    Layout = "~/Views/Shared/_LayoutAdminLTE.cshtml";
 }
 
 <div class="content-header">
-	<div class="container-fluid">
-		<div class="row mb-2">
-			<div class="col-sm-6">
-				<h1 class="m-0">Laboratuvar Ürün Yönetimi</h1>
-			</div>
-		</div>
-	</div>
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Laboratuvar Ürün Yönetimi</h1>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="content">
-	<div class="container-fluid">
-		<div class="row">
-			<div class="col-12">
-				<div class="card">
-					<div class="card-header d-flex justify-content-between">
-						<h3 class="card-title">Laboratuvar Malzeme Listesi</h3>
-						@* <a href="@Url.Action("Create", "Laboratory")" class="btn btn-success ml-auto">Laboratuvar Ürünü Ekle</a> *@
-						<button type="button" class="btn btn-success ml-auto" data-toggle="modal" data-target="#addLaboratoryModal">
-							Laboratuvar Ürünü Ekle
-						</button>
-					</div>
-					<div class="card-body">
-						<table id="laboratoriesTable" class="table table-bordered table-striped">
-							<thead>
-								<tr>
-									<th>Şirket Adı</th>
-									<th>Ürün Adı</th>
-									<th>İşlemler</th>
-								</tr>
-							</thead>
-							<tbody>
-								@foreach (var lab in Model)
-								{
-									<tr>
-
-										<td>@lab.CompanyName</td>
-										<td>@lab.ProductName</td>
-										<td>
-											<a href="@Url.Action("Edit", "Laboratory", new { id = lab.Id })" class="btn btn-warning btn-sm">Güncelle</a>
-											<a href="@Url.Action("Delete", "Laboratory", new { id = lab.Id })" class="btn btn-danger btn-sm">Sil</a>
-										</td>
-									</tr>
-								}
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between">
+                        <h3 class="card-title">Laboratuvar Malzeme Listesi</h3>
+                        <button type="button" class="btn btn-success ml-auto" data-toggle="modal" data-target="#addLaboratoryModal">
+                            Laboratuvar Ürünü Ekle
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <table id="laboratoriesTable" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Şirket Adı</th>
+                                    <th>Ürün Adı</th>
+                                    <th>İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var lab in Model)
+                                {
+                                    <tr>
+                                        <td>@lab.CompanyName</td>
+                                        <td>@lab.ProductName</td>
+                                        <td>
+                                            <button class="btn btn-warning btn-sm" onclick="showUpdateModal(@lab.Id, '@lab.CompanyName', '@lab.ProductName')">Güncelle</button>
+                                            <button class="btn btn-danger btn-sm" onclick="deleteLaboratory(@lab.Id)">Sil</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
+<!-- Yeni Laboratuvar Ürünü Ekle Modal -->
 <div class="modal fade" id="addLaboratoryModal" tabindex="-1" role="dialog" aria-labelledby="addLaboratoryModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-lg" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="addLaboratoryModalLabel">Yeni Laboratuvar Ürünü Ekle</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Kapat">
-					<span aria-hidden="true">&times;</span>
-				</button>
-			</div>
-			<div class="modal-body">
-				<form id="labForm">
-					@Html.AntiForgeryToken()
-					<div class="form-group">
-						<label for="companyName">Şirket Adı</label>
-						<input type="text" class="form-control" id="companyName" name="CompanyName" placeholder="Şirket Adı">
-					</div>
-					<div class="form-group">
-						<label for="productName">Ürün Adı</label>
-						<input type="text" class="form-control" id="productName" name="ProductName" placeholder="Ürün Adı">
-					</div>
-				</form>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
-				<button type="button" class="btn btn-primary" id="saveLaboratoryBtn">Kaydet</button>
-			</div>
-		</div>
-	</div>
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addLaboratoryModalLabel">Yeni Laboratuvar Ürünü Ekle</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Kapat">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="labForm">
+                    @Html.AntiForgeryToken()
+                    <div class="form-group">
+                        <label for="companyName">Şirket Adı</label>
+                        <input type="text" class="form-control" id="companyName" name="CompanyName" placeholder="Şirket Adı">
+                    </div>
+                    <div class="form-group">
+                        <label for="productName">Ürün Adı</label>
+                        <input type="text" class="form-control" id="productName" name="ProductName" placeholder="Ürün Adı">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                <button type="button" class="btn btn-primary" id="saveLaboratoryBtn">Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Güncelleme Modalı -->
+<div class="modal fade" id="updateLaboratoryModal" tabindex="-1" role="dialog" aria-labelledby="updateLaboratoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateLaboratoryModalLabel">Laboratuvar Ürününü Güncelle</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Kapat">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="updateLabForm">
+                    <input type="hidden" id="updateLabId">
+                    <div class="form-group">
+                        <label for="updateCompanyName">Şirket Adı</label>
+                        <input type="text" class="form-control" id="updateCompanyName" placeholder="Şirket Adı">
+                    </div>
+                    <div class="form-group">
+                        <label for="updateProductName">Ürün Adı</label>
+                        <input type="text" class="form-control" id="updateProductName" placeholder="Ürün Adı">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                <button type="button" class="btn btn-primary" onclick="updateLaboratory()">Güncelle</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
-	<script src="~/plugins/datatables/jquery.datatables.min.js"></script>
-	<script src="~/plugins/datatables-bs4/js/datatables.bootstrap4.min.js"></script>
-	<script src="~/plugins/datatables-responsive/js/datatables.responsive.min.js"></script>
-	<script src="~/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
-	<script src="~/plugins/datatables-buttons/js/datatables.buttons.min.js"></script>
-	<script src="~/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
-	<script src="~/plugins/jszip/jszip.min.js"></script>
-	<script src="~/plugins/pdfmake/pdfmake.min.js"></script>
-	<script src="~/plugins/pdfmake/vfs_fonts.js"></script>
-	<script src="~/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
-	<script src="~/plugins/datatables-buttons/js/buttons.print.min.js"></script>
-	<script src="~/plugins/datatables-buttons/js/buttons.colvis.min.js"></script>
-	<script src="~/js/datatables-settings.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-	@*    <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
-	<script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap4.min.js"></script> *@
-	<script>
-		$(document).ready(function () {
-			$('#laboratoriesTable').DataTable({
-				"paging": true,
-				"lengthChange": true,
-				"searching": true,
-				"ordering": true,
-				"info": true,
-				"autoWidth": false,
-				"responsive": true,
-				"dom": '<"row"<"col-md-6"B><"col-md-6"f>>rt<"row"<"col-md-6"l><"col-md-6"p>>',
-			}).buttons().container().appendTo('#laboratoriesTable_wrapper .col-md-6:eq(0)')
+    <script src="~/plugins/datatables/jquery.datatables.min.js"></script>
+    <script src="~/plugins/datatables-bs4/js/datatables.bootstrap4.min.js"></script>
+    <script src="~/plugins/datatables-responsive/js/datatables.responsive.min.js"></script>
+    <script src="~/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+    <script src="~/plugins/datatables-buttons/js/datatables.buttons.min.js"></script>
+    <script src="~/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+    <script src="~/plugins/jszip/jszip.min.js"></script>
+    <script src="~/plugins/pdfmake/pdfmake.min.js"></script>
+    <script src="~/plugins/pdfmake/vfs_fonts.js"></script>
+    <script src="~/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+    <script src="~/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+    <script src="~/plugins/datatables-buttons/js/buttons.colvis.min.js"></script>
+    <script src="~/js/datatables-settings.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(function () {
+            $('#laboratoriesTable').DataTable({
+                "paging": true,
+                "lengthChange": true,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+                "dom": '<"row"<"col-md-6"B><"col-md-6"f>>rt<"row"<"col-md-6"l><"col-md-6"p>>',
+            }).buttons().container().appendTo('#laboratoriesTable_wrapper .col-md-6:eq(0)')
 
+            $('#saveLaboratoryBtn').on('click', function () {
+                var token = $('input[name="__RequestVerificationToken"]').val();
 
+                var formData = {
+                    CompanyName: $('#companyName').val(),
+                    ProductName: $('#productName').val()
+                };
 
-			$('#saveLaboratoryBtn').on('click', function () {
-				var token = $('input[name="__RequestVerificationToken"]').val();
+                $.ajax({
+                    type: "POST",
+                    url: '/Laboratory/Create',
+                    data: formData,
+                    headers: {
+                        "RequestVerificationToken": token  // CSRF token'ı header'a ekleniyor
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            // SweetAlert success mesajı
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Başarılı!',
+                                text: 'Laboratuvar ürünü başarıyla kaydedildi.',
+                                confirmButtonText: 'Tamam'
+                            }).then(function () {
+                                $('#addLaboratoryModal').modal('hide');
+                                location.reload(); // Başarılı olursa sayfa yenilenir
+                            });
+                        } else {
+                            // SweetAlert hata mesajı
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Hata!',
+                                text: response.message || 'Kayıt sırasında bir hata oluştu.',
+                                confirmButtonText: 'Tamam'
+                            });
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(xhr.responseText);
+                        // SweetAlert hata mesajı
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Hata!',
+                            text: 'Kayıt sırasında bir hata oluştu.',
+                            confirmButtonText: 'Tamam'
+                        });
+                    }
+                });
+            });
+        });
 
-				var formData = {
-					CompanyName: $('#companyName').val(),
-					ProductName: $('#productName').val()
-				};
+        function showUpdateModal(id, companyName, productName) {
+            $('#updateLabId').val(id);
+            $('#updateCompanyName').val(companyName);
+            $('#updateProductName').val(productName);
+            $('#updateLaboratoryModal').modal('show');
+        }
 
-				$.ajax({
-					type: "POST",
-					url: '/Laboratory/Create',
-					data: formData,
-					headers: {
-						"RequestVerificationToken": token  // CSRF token'ı header'a ekleniyor
-					},
-					success: function (response) {
-						if (response.success) {
-							// SweetAlert success mesajı
-							Swal.fire({
-								icon: 'success',
-								title: 'Başarılı!',
-								text: 'Laboratuvar ürünü başarıyla kaydedildi.',
-								confirmButtonText: 'Tamam'
-							}).then(function () {
-								$('#addLaboratoryModal').modal('hide');
-								location.reload(); // Başarılı olursa sayfa yenilenir
-							});
-						} else {
-							// SweetAlert hata mesajı
-							Swal.fire({
-								icon: 'error',
-								title: 'Hata!',
-								text: response.message || 'Kayıt sırasında bir hata oluştu.',
-								confirmButtonText: 'Tamam'
-							});
-						}
-					},
-					error: function (xhr, status, error) {
-						console.error(xhr.responseText);
-						// SweetAlert hata mesajı
-						Swal.fire({
-							icon: 'error',
-							title: 'Hata!',
-							text: 'Kayıt sırasında bir hata oluştu.',
-							confirmButtonText: 'Tamam'
-						});
-					}
-				});
-			});
-		});
-	</script>
+        function updateLaboratory() {
+            var updateToken = $('input[name="__RequestVerificationToken"]').val();
+
+            var formData = {
+                Id: $('#updateLabId').val(),
+                CompanyName: $('#updateCompanyName').val(),
+                ProductName: $('#updateProductName').val()
+            };
+
+            $.ajax({
+                type: "POST",
+                url: '/Laboratory/Edit',
+                data: formData,
+                headers: {
+                    "RequestVerificationToken": updateToken  
+                },
+                success: function (response) {
+                    if (response.success) {
+                        // SweetAlert success mesajı
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Başarılı!',
+                            text: 'Laboratuvar ürünü başarıyla güncellendi.',
+                            confirmButtonText: 'Tamam'
+                        }).then(function () {
+                            $('#addLaboratoryModal').modal('hide');
+                            location.reload();
+                        });
+                    } else {
+                        // SweetAlert hata mesajı
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Hata!',
+                            text: response.message || 'Güncelleme sırasında bir hata oluştu.',
+                            confirmButtonText: 'Tamam'
+                        });
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error(xhr.responseText);
+                    // SweetAlert hata mesajı
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Hata!',
+                        text: 'Güncelleme sırasında bir hata oluştu.',
+                        confirmButtonText: 'Tamam'
+                    });
+                }
+            });
+
+        }
+
+        function deleteLaboratory(id) {
+            Swal.fire({
+                title: 'Emin misiniz?',
+                text: 'Bu işlemi geri alamazsınız!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Evet, sil!',
+                cancelButtonText: 'İptal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post('/Laboratory/Delete', { id: id }, function (response) {
+                        if (response.success) {
+                            Swal.fire('Silindi', 'Laboratuvar ürünü başarıyla silindi.', 'success').then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire('Hata', response.message || 'Silme sırasında bir hata oluştu.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+    </script>
 }

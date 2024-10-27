@@ -1,4 +1,5 @@
 ﻿using HavucDent.Domain.Entities;
+using System.Linq.Expressions;
 
 namespace HavucDent.Infrastructure.Repositories
 {
@@ -10,9 +11,13 @@ namespace HavucDent.Infrastructure.Repositories
     public interface ILaboratoryService
     {
         Task<IEnumerable<Laboratory>> GetAllLaboratoriesAsync();
+
         Task<Laboratory> GetLaboratoryByIdAsync(int id);
+
         Task AddLaboratoryAsync(Laboratory laboratory);
+
         Task UpdateLaboratoryAsync(Laboratory laboratory);
-        Task DeleteLaboratoryAsync(int id);
+
+        Task<bool> DeleteLaboratoryAsync(int id);
     }
 }

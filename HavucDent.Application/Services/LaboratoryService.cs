@@ -1,5 +1,7 @@
 ﻿using HavucDent.Domain.Entities;
 using HavucDent.Infrastructure.Interfaces;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 using HavucDent.Infrastructure.Repositories;
 
 namespace HavucDent.Application.Services
@@ -7,16 +9,23 @@ namespace HavucDent.Application.Services
     public class LaboratoryService : ILaboratoryService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public LaboratoryService(IUnitOfWork unitOfWork)
+        public LaboratoryService(IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<IEnumerable<Laboratory>> GetAllLaboratoriesAsync()
         {
-            return await _unitOfWork.Laboratories.GetAllAsync();
+            var laboratories = await _unitOfWork.Laboratories
+                .FindAsync(l => !l.IsDeleted);
+
+            return laboratories.OrderBy(l => l.Id); // Id’ye göre sıralama
         }
+
+        private string CurrentUserEmail => _httpContextAccessor.HttpContext?.User?.Identity?.Name ?? "anonim";
 
         public async Task<Laboratory> GetLaboratoryByIdAsync(int id)
         {
@@ -25,6 +34,10 @@ namespace HavucDent.Application.Services
 
         public async Task AddLaboratoryAsync(Laboratory laboratory)
         {
+            laboratory.CreatedDate = DateTime.UtcNow;
+            laboratory.CreatedByUserMail = CurrentUserEmail;
+            laboratory.UpdatedByUserMail = null;
+
             await _unitOfWork.BeginTransactionAsync();
 
             try
@@ -42,11 +55,19 @@ namespace HavucDent.Application.Services
 
         public async Task UpdateLaboratoryAsync(Laboratory laboratory)
         {
+            var existingLab = await GetLaboratoryByIdAsync(laboratory.Id);
+            if (existingLab == null) return;
+
+            existingLab.CompanyName = laboratory.CompanyName;
+            existingLab.ProductName = laboratory.ProductName;
+            existingLab.UpdatedDate = DateTime.UtcNow;
+            existingLab.UpdatedByUserMail = CurrentUserEmail;
+
             await _unitOfWork.BeginTransactionAsync();
 
             try
             {
-                _unitOfWork.Laboratories.Update(laboratory);
+                _unitOfWork.Laboratories.Update(existingLab);
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitTransactionAsync();
             }
@@ -57,7 +78,7 @@ namespace HavucDent.Application.Services
             }
         }
 
-        public async Task DeleteLaboratoryAsync(int id)
+        public async Task<bool> DeleteLaboratoryAsync(int id)
         {
             await _unitOfWork.BeginTransactionAsync();
 
@@ -65,15 +86,16 @@ namespace HavucDent.Application.Services
             {
                 var laboratory = await _unitOfWork.Laboratories.GetByIdAsync(id);
 
-                _unitOfWork.Laboratories.Remove(laboratory);
+                laboratory.IsDeleted = true;
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitTransactionAsync();
 
+                return true;
             }
             catch
             {
                 await _unitOfWork.RollbackTransactionAsync();
-                throw;
+                return false;
             }
         }
     }
