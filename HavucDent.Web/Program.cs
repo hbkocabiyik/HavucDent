@@ -2,6 +2,8 @@ using HavucDent.Application.Interfaces;
 using HavucDent.Application.Mappings;
 using HavucDent.Application.Services;
 using HavucDent.Common.Logging;
+using HavucDent.Common.Services;
+using HavucDent.Common.Settings;
 using HavucDent.Domain.Entities;
 using HavucDent.Infrastructure.Identity;
 using HavucDent.Infrastructure.Interfaces;
@@ -26,6 +28,8 @@ builder.Services.AddDbContext<HavucDbContext>(options =>
 
 //AutoMapper DI ekleme
 builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddAutoMapper(typeof(ApplicationMappingProfile));
+
 
 // Identity konfigürasyonu
 builder.Services.AddIdentity<AppUser, IdentityRole>()
@@ -40,14 +44,16 @@ builder.Services.AddSingleton<ILoggerManager, LoggerManager>();
 
 builder.Logging.ClearProviders();
 builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
-builder.Host.UseNLog(); // NLog'u kullanmak için
+builder.Host.UseNLog();
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 #region Services
-
 
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<ILaboratoryService, LaboratoryService>();
+builder.Services.AddScoped<IPersonelService, PersonelService>();
+builder.Services.AddSingleton<IEmailSender, EmailSender>();
 
 #endregion
 

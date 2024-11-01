@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using HavucDent.Domain.Entities;
+using HavucDent.Infrastructure.Identity;
 using HavucDent.Web.Models;
 
 namespace HavucDent.Application.Mappings
@@ -8,10 +9,8 @@ namespace HavucDent.Application.Mappings
 	{
 		public MappingProfile()
 		{
-			// Laboratory için mapping
 			CreateMap<LaboratoryViewModel, Laboratory>().ReverseMap();
-
-
-		}
+            CreateMap<User, AppUser>().ReverseMap();
+        }
 	}
 }

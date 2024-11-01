@@ -7,10 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\HavucDent.Common\HavucDent.Common.csproj" />
     <ProjectReference Include="..\HavucDent.Domain\HavucDent.Domain.csproj" />
     <ProjectReference Include="..\HavucDent.Infrastructure\HavucDent.Infrastructure.csproj" />
   </ItemGroup>

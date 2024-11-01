@@ -1,0 +1,227 @@
+﻿@model IEnumerable<HavucDent.Application.DTOs.UserDto>
+
+@{
+    ViewData["Title"] = "Personel Yönetimi";
+    Layout = "~/Views/Shared/_LayoutAdminLTE.cshtml";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Personel Yönetimi</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="content">
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header">
+                <button type="button" class="btn btn-success" data-toggle="modal" data-target="#addPersonelModal">
+                    Personel Ekle
+                </button>
+            </div>
+            <div class="card-body">
+                <table id="personelTable" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Ad</th>
+                            <th>Soyad</th>
+                            <th>Telefon</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var personel in Model)
+                        {
+                            <tr>
+                                <td>@personel.FirstName</td>
+                                <td>@personel.LastName</td>
+                                <td>@personel.PhoneNumber</td>
+                                <td>
+                                    <button type="button" class="btn btn-warning btn-sm" onclick="editPersonel(@personel.Id)">Güncelle</button>
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="deletePersonel(@personel.Id)">Sil</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ekleme Modali -->
+<div class="modal fade" id="addPersonelModal" tabindex="-1" role="dialog" aria-labelledby="addPersonelModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Yeni Personel Ekle</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Kapat">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <form id="addPersonelForm">
+                    @Html.AntiForgeryToken()
+                    <div class="form-group">
+                        <label for="firstName">Ad</label>
+                        <input type="text" class="form-control" id="firstName" name="FirstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Soyad</label>
+                        <input type="text" class="form-control" id="lastName" name="LastName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tcKimlikNo">TC Kimlik No</label>
+                        <input type="text" class="form-control" id="tcKimlikNo" name="TcKimlikNo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="sgkNo">SGK No</label>
+                        <input type="text" class="form-control" id="sgkNo" name="SgkNo">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" name="Email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phoneNumber">Telefon</label>
+                        <input type="text" class="form-control" id="phoneNumber" name="PhoneNumber">
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Adres</label>
+                        <input type="text" class="form-control" id="address" name="Address">
+                    </div>
+                    <div class="form-group">
+                        <label for="salary">Maaş</label>
+                        <input type="number" class="form-control" id="salary" name="Salary">
+                    </div>
+                    <div class="form-group">
+                        <label for="hireDate">İşe Giriş Tarihi</label>
+                        <input type="date" class="form-control" id="hireDate" name="HireDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="salaryPaymentDate">Maaş Ödeme Tarihi</label>
+                        <input type="date" class="form-control" id="salaryPaymentDate" name="SalaryPaymentDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="annualLeaveDays">Yıllık İzin Gün Sayısı</label>
+                        <input type="number" class="form-control" id="annualLeaveDays" name="AnnualLeaveDays">
+                    </div>
+                    <div class="form-group">
+                        <label for="role">Rol</label>
+                        <select class="form-control" id="role" name="Role">
+                            <option value="Admin">Admin</option>
+                            <option value="Doctor">Doctor</option>
+                            <option value="Assistant">Assistant</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                <button type="button" class="btn btn-primary" id="savePersonelBtn">Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+	<script src="~/plugins/datatables/jquery.datatables.min.js"></script>
+	<script src="~/plugins/datatables-bs4/js/datatables.bootstrap4.min.js"></script>
+	<script src="~/plugins/datatables-responsive/js/datatables.responsive.min.js"></script>
+	<script src="~/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+	<script src="~/plugins/datatables-buttons/js/datatables.buttons.min.js"></script>
+	<script src="~/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+	<script src="~/plugins/jszip/jszip.min.js"></script>
+	<script src="~/plugins/pdfmake/pdfmake.min.js"></script>
+	<script src="~/plugins/pdfmake/vfs_fonts.js"></script>
+	<script src="~/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+	<script src="~/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+	<script src="~/plugins/datatables-buttons/js/buttons.colvis.min.js"></script>
+	<script src="~/js/datatables-settings.js"></script>
+@* 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> *@
+    <script src="~/plugins/sweetalert2/sweetalert2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#personelTable').DataTable({
+                "paging": true,
+                "lengthChange": true,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true
+            });
+
+            $('#savePersonelBtn').on('click', function () {
+                var token = $('input[name="__RequestVerificationToken"]').val();
+
+                var formData = {
+                    FirstName: $('#firstName').val(),
+                    LastName: $('#lastName').val(),
+                    TcKimlikNo: $('#tcKimlikNo').val(),
+                    SgkNo: $('#sgkNo').val(),
+                    Email: $('#email').val(),
+                    PhoneNumber: $('#phoneNumber').val(),
+                    Address: $('#address').val(),
+                    Salary: $('#salary').val(),
+                    HireDate: $('#hireDate').val(),
+                    SalaryPaymentDate: $('#salaryPaymentDate').val(),
+                    AnnualLeaveDays: $('#annualLeaveDays').val(),
+                    Role: $('#role').val()
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: '/Personel/Create',
+                    data: formData,
+                    contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                    headers: {
+                        "RequestVerificationToken": token
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Başarılı!',
+                                text: 'Personel başarıyla eklendi.',
+                                confirmButtonText: 'Tamam'
+                            }).then(() => {
+                                $('#addPersonelModal').modal('hide');
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Hata!',
+                                text: response.message || 'Personel ekleme sırasında bir hata oluştu.',
+                                confirmButtonText: 'Tamam'
+                            });
+                        }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Hata!',
+                            text: 'Personel ekleme sırasında bir hata oluştu.',
+                            confirmButtonText: 'Tamam'
+                        });
+                    }
+                });
+            });
+        });
+
+        function editPersonel(id) {
+            // Güncelleme işlemi için modal açılır
+        }
+
+        function deletePersonel(id) {
+            // SweetAlert ile silme işlemi onaylanır
+        }
+    </script>
+}
