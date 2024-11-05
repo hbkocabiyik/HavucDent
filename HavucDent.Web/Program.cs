@@ -14,13 +14,63 @@ using HavucDent.Web.Extentions;
 using HavucDent.Web.Filters;
 using HavucDent.Web.Logging;
 using HavucDent.Web.Middleware;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using NLog;
 using NLog.Web;
+using System.Net;
+using System.Security.Cryptography.X509Certificates;
 
 var builder = WebApplication.CreateBuilder(args);
+
+#region Identity Keys
+
+var dataProtectionPath = Path.Combine(Directory.GetCurrentDirectory(), "DataProtectionKeys");
+
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionPath))
+    .SetApplicationName("HavucDent");
+
+#endregion
+
+
+#region Kestrel
+
+var configuration = builder.Configuration;
+var domain = configuration["ApplicationSettings:Domain"] ?? "http://localhost";
+var httpPort = configuration["ApplicationSettings:Port"] ?? "1903";
+var httpsPort = configuration["ApplicationSettings:HttpsPort"] ?? "443";
+var thumbprint = configuration["ApplicationSettings:SslThumbprint"];
+
+// Kestrel yapýlandýrmasý
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    // HTTP için dinleme
+    serverOptions.Listen(IPAddress.Any, int.Parse(httpPort));
+
+    // HTTPS için dinleme
+    if (!string.IsNullOrEmpty(thumbprint))
+    {
+        // Sertifikayý thumbprint ile bul
+        var store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+        store.Open(OpenFlags.ReadOnly);
+
+        var certs = store.Certificates.Find(X509FindType.FindByThumbprint, thumbprint, false);
+        if (certs.Count > 0)
+        {
+            var certificate = certs[0];
+            serverOptions.Listen(IPAddress.Any, int.Parse(httpsPort), listenOptions =>
+            {
+                listenOptions.UseHttps(certificate);
+            });
+        }
+        store.Close();
+    }
+});
+
+#endregion
 
 // DbContext konfigürasyonu
 builder.Services.AddDbContext<HavucDbContext>(options =>
@@ -45,6 +95,12 @@ builder.Services.AddSingleton<ILoggerManager, LoggerManager>();
 builder.Logging.ClearProviders();
 builder.Logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
 builder.Host.UseNLog();
+
+builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+{
+    options.TokenLifespan = TimeSpan.FromMinutes(30); 
+});
+
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
 #region Services

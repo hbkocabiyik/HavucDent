@@ -1,7 +1,9 @@
 ﻿using HavucDent.Application.DTOs;
 using HavucDent.Application.Interfaces;
+using HavucDent.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 
 namespace HavucDent.Web.Controllers
 {
@@ -78,27 +80,51 @@ namespace HavucDent.Web.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> ConfirmEmail(string userId, string token)
         {
+            if (userId == null || token == null)
+                return RedirectToAction("Error", "Home");
+            
+
+
+
             var result = await _personelService.ConfirmEmailAsync(userId, token);
 
             if (result)
             {
-                TempData["Success"] = "E-posta başarıyla doğrulandı. Şifrenizi oluşturabilirsiniz.";
+                // Kullanıcı e-posta onayı başarılı, şifre belirleme sayfasına yönlendir
                 return RedirectToAction("SetPassword", new { userId });
             }
 
-            TempData["Error"] = "E-posta doğrulaması sırasında hata oluştu.";
-
-            return RedirectToAction("Index", "Home");
+            // Hata durumunda bir hata sayfasına yönlendir
+            return RedirectToAction("Error", "Home");
         }
 
-        //[HttpGet]
-        //[AllowAnonymous]
-        //public IActionResult SetPassword(string userId)
-        //{
-        //    var model = new SetPasswordDto { UserId = userId };
+        [HttpPost]
+        public async Task<IActionResult> SetPassword(SetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+            
 
-        //    return View(model);
-        //}
+            var result = await _personelService.SetPasswordAsync(model.UserId, model.Password);
+            if (result)
+            {
+                // Şifre başarıyla belirlendi, giriş sayfasına yönlendir
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Hata durumunda model hata mesajı ile tekrar yüklenir
+            ModelState.AddModelError(string.Empty, "Şifre belirleme işlemi başarısız.");
+            return View(model);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult SetPassword(string userId)
+        {
+            var model = new SetPasswordViewModel { UserId = userId };
+
+            return View(model);
+        }
 
         //[HttpPost]
         //[AllowAnonymous]
