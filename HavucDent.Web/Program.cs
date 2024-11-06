@@ -82,7 +82,14 @@ builder.Services.AddAutoMapper(typeof(ApplicationMappingProfile));
 
 
 // Identity konfigürasyonu
-builder.Services.AddIdentity<AppUser, IdentityRole>()
+builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
+    {
+        options.Password.RequireDigit = true; // En az bir rakam
+        options.Password.RequiredLength = 8;  // Minimum 8 karakter
+        options.Password.RequireNonAlphanumeric = true; // Özel karakter gereksinimi
+        options.Password.RequireUppercase = true; // En az bir büyük harf
+        options.Password.RequireLowercase = true; // En az bir küçük harf
+    })
     .AddEntityFrameworkStores<HavucDbContext>()
     .AddDefaultTokenProviders();
 

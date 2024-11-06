@@ -13,21 +13,18 @@ namespace HavucDent.Application.Interfaces
         // Kullanıcının parola oluşturma işlemi
         Task<bool> SetPasswordAsync(string userId, string password);
 
-        //// E-posta ile kullanıcıyı bulma ve UserDto döndürme işlemi
-        //Task<UserDto> FindByEmailAsync(string email);
-
-        //// Kullanıcının e-posta doğrulama durumu kontrolü
-        //Task<bool> IsEmailConfirmedAsync(UserDto userDto);
-
-        // E-posta doğrulama bağlantısı gönderme işlemi
-        Task SendConfirmationEmailAsync(CreateUserDto userDto, string token);
-
         // E-posta doğrulama bağlantısı tekrar gönderme işlemi
         Task<bool> ResendConfirmationEmailAsync(string userId);
 
+        // Token doğrulama işlemi
+        Task<bool> VerifyTokenAsync(string userId, string token);
+
         Task<bool> UpdatePersonelAsync(UpdateUserDto userDto);
+
         Task<bool> DeletePersonelAsync(int userId);
+
         Task<List<UserDto>> GetAllPersonelAsync();
+
         Task<CreateUserDto> GetPersonelByIdAsync(int id);
     }
 }

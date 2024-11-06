@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
-using Azure.Core;
 using HavucDent.Application.DTOs;
 using HavucDent.Application.Interfaces;
 using HavucDent.Common.Services;
+using HavucDent.Domain.Entities;
 using HavucDent.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
-using System;
 using System.Net;
 
 namespace HavucDent.Application.Services
@@ -45,11 +44,19 @@ namespace HavucDent.Application.Services
                 var token = await _userManager.GenerateEmailConfirmationTokenAsync(appUser);
                 var encodedToken = WebUtility.UrlEncode(token);
 
-                await SendConfirmationEmailAsync(userDto, encodedToken); // Onay e-postası gönder
-
+                await _emailSender.SendEmailAsync(userDto.Email, "E-posta Doğrulama", GenerateEmailContent(userDto, encodedToken));// Onay e-postası gönder
                 return true;
             }
             return false;
+        }
+
+        private string GenerateEmailContent(CreateUserDto userDto, string token)
+        {
+            var domain = _configuration["ApplicationSettings:Domain"];
+            var port = _configuration["ApplicationSettings:Port"];
+            var confirmationLink = $"{domain}:{port}/personel/confirmemail?userId={userDto.Id}&token={WebUtility.UrlEncode(token)}";
+
+            return $"Merhaba {userDto.FirstName}, hesabınızı doğrulamak için <a href='{confirmationLink}'>buraya tıklayın</a> <br><br/> Bağlantı adresi:  {confirmationLink}";
         }
 
         public async Task<bool> ConfirmEmailAsync(string userId, string token)
@@ -60,7 +67,8 @@ namespace HavucDent.Application.Services
             if (user == null) 
                 return false;
 
-            var result = await _userManager.ConfirmEmailAsync(user, token);
+            var decodedToken = WebUtility.UrlDecode(token);
+            var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
 
             if (!result.Succeeded)
             {
@@ -87,32 +95,29 @@ namespace HavucDent.Application.Services
             return addPasswordResult.Succeeded;
         }
 
-        //public async Task<UserDto> FindByEmailAsync(string email)
-        //{
-        //    var user = await _userManager.FindByEmailAsync(email);
-
-        //    return _mapper.Map<UserDto>(user); // Kullanıcıyı DTO olarak döndür
-        //}
-
-        //public async Task<bool> IsEmailConfirmedAsync(UserDto userDto)
-        //{
-        //    // DTO'yu varlığa dönüştürerek e-posta doğrulama durumunu kontrol etme
-        //    var user = await _userManager.FindByIdAsync(userDto.Id.ToString());
-
-        //    return user != null && await _userManager.IsEmailConfirmedAsync(user);
-        //}
-
-        public async Task SendConfirmationEmailAsync(CreateUserDto userDto, string token)
+        public async Task<bool> ResendConfirmationEmailAsync(string userId)
         {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return false;
 
-            var domain = _configuration["ApplicationSettings:Domain"];
-            var port = _configuration["ApplicationSettings:Port"];
+            var newToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            await _emailSender.SendEmailAsync(user.Email, "E-posta Doğrulama", GenerateEmailContent(new CreateUserDto() { Id = user.Id, Email = user.Email, FirstName = user.FirstName }, newToken));
 
-            var confirmationLink = $"{domain}:{port}/personel/confirmemail?userId={userDto.Id}&token={token}";
-            var message = $"Merhaba {userDto.FirstName}, hesabınızı doğrulamak için aşağıdaki bağlantıya tıklayın: {confirmationLink}";
-
-            await _emailSender.SendEmailAsync(userDto.Email, "E-posta Doğrulama", message);
+            return true;
         }
+
+        public async Task<bool> VerifyTokenAsync(string userId, string token)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return false;
+
+            var decodedToken = WebUtility.UrlDecode(token);
+
+            var isTokenValid = await _userManager.VerifyUserTokenAsync(user, TokenOptions.DefaultProvider, "EmailConfirmation", decodedToken);
+            return isTokenValid;
+        }
+
 
         public async Task<bool> UpdatePersonelAsync(UpdateUserDto userDto)
         {
@@ -156,11 +161,6 @@ namespace HavucDent.Application.Services
             var user = await _userManager.FindByIdAsync(id.ToString());
 
             return _mapper.Map<CreateUserDto>(user);
-        }
-
-        public Task<bool> ResendConfirmationEmailAsync(string userId)
-        {
-            throw new NotImplementedException();
         }
     }
 }

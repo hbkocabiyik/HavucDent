@@ -80,22 +80,34 @@ namespace HavucDent.Web.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> ConfirmEmail(string userId, string token)
         {
-            if (userId == null || token == null)
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
                 return RedirectToAction("Error", "Home");
-            
-
-
 
             var result = await _personelService.ConfirmEmailAsync(userId, token);
 
             if (result)
             {
                 // Kullanıcı e-posta onayı başarılı, şifre belirleme sayfasına yönlendir
+                TempData["Token"] = token; // Token'ı geçici olarak sakla
                 return RedirectToAction("SetPassword", new { userId });
             }
 
             // Hata durumunda bir hata sayfasına yönlendir
-            return RedirectToAction("Error", "Home");
+            ViewData["TokenExpired"] = true; // Token süresi dolmuş veya geçersiz
+            return View("SetPassword");
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult SetPassword(string userId)
+        {
+            if (TempData["Token"] == null)
+            {
+                return RedirectToAction("Error", "Home"); // Token olmadan erişim yok
+            }
+
+            var model = new SetPasswordViewModel { UserId = userId, Token = TempData["Token"].ToString() };
+            return View(model);
         }
 
         [HttpPost]
@@ -103,12 +115,19 @@ namespace HavucDent.Web.Controllers
         {
             if (!ModelState.IsValid)
                 return View(model);
-            
+
+            // Token doğrulama işlemi
+            var isValidToken = await _personelService.VerifyTokenAsync(model.UserId, model.Token);
+            if (!isValidToken)
+            {
+                ModelState.AddModelError(string.Empty, "Token geçersiz veya süresi dolmuş.");
+                return View(model);
+            }
 
             var result = await _personelService.SetPasswordAsync(model.UserId, model.Password);
             if (result)
             {
-                // Şifre başarıyla belirlendi, giriş sayfasına yönlendir
+                TempData["Success"] = "Şifre başarıyla oluşturuldu. Giriş yapabilirsiniz.";
                 return RedirectToAction("Login", "Account");
             }
 
@@ -117,14 +136,7 @@ namespace HavucDent.Web.Controllers
             return View(model);
         }
 
-        [HttpGet]
-        [AllowAnonymous]
-        public IActionResult SetPassword(string userId)
-        {
-            var model = new SetPasswordViewModel { UserId = userId };
 
-            return View(model);
-        }
 
         //[HttpPost]
         //[AllowAnonymous]

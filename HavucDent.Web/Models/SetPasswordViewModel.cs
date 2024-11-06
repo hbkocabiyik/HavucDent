@@ -13,5 +13,7 @@ namespace HavucDent.Web.Models
 		[DataType(DataType.Password)]
 		[Compare("Password", ErrorMessage = "Şifreler eşleşmiyor.")]
 		public string ConfirmPassword { get; set; }
-	}
+
+        public string Token { get; set; }
+    }
 }

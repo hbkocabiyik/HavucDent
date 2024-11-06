@@ -6,39 +6,33 @@ namespace HavucDent.Common.Services
 {
     public class EmailSender : IEmailSender
     {
+        private readonly IConfiguration _configuration;
 
         public EmailSender(IConfiguration configuration)
         {
             _configuration = configuration;
         }
-        private readonly IConfiguration _configuration;
 
-        public async Task SendEmailAsync(string email, string subject, string htmlMessage)
+        public async Task SendEmailAsync(string email, string subject, string htmlMessage) 
         {
-            var smtpServer = _configuration["EmailSettings:SmtpServer"];
-            var port = int.Parse(_configuration["EmailSettings:Port"]);
-            var senderEmail = _configuration["EmailSettings:SenderEmail"];
-            var password = _configuration["EmailSettings:Password"];
-
-            using var client = new SmtpClient(smtpServer)
+            var smtpClient = new SmtpClient(_configuration["EmailSettings:SmtpServer"])
             {
-                Port = port,
+                Port = int.Parse(_configuration["EmailSettings:Port"]),
+                Credentials = new NetworkCredential(_configuration["EmailSettings:SenderEmail"], _configuration["EmailSettings:Password"]),
                 EnableSsl = true,
-                Credentials = new NetworkCredential(senderEmail, password),
-                
-                
             };
 
-            var mailMessage = new MailMessage
+             var mailMessage = new MailMessage
             {
-                From = new MailAddress(senderEmail),
+                From = new MailAddress(_configuration["EmailSettings:SenderEmail"]),
                 Subject = subject,
                 Body = htmlMessage,
-                IsBodyHtml = true,
-            }; 
+                IsBodyHtml = true
+            };
+
             mailMessage.To.Add(email);
 
-            await client.SendMailAsync(mailMessage);
+            await smtpClient.SendMailAsync(mailMessage);
         }
     }
 }
