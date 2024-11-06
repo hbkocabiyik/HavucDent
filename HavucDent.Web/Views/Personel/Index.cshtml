@@ -118,18 +118,30 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6 form-group">
-                            <label for="annualLeaveDays">Yıllık İzin Gün Sayısı</label>
-                            <input type="number" class="form-control" id="annualLeaveDays" name="AnnualLeaveDays">
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label for="role">Rol</label>
-                            <select class="form-control" id="role" name="Role">
-                                <option value="Admin">Admin</option>
-                                <option value="Doctor">Doctor</option>
-                                <option value="Assistant">Assistant</option>
-                            </select>
-                        </div>
+	                    <div class="col-md-6 form-group">
+		                    <label for="annualLeaveDays">Yıllık İzin Gün Sayısı</label>
+		                    <input type="number" class="form-control" id="annualLeaveDays" name="AnnualLeaveDays">
+	                    </div>
+	                    <div class="col-md-6 form-group">
+		                    <label for="role">Rol</label>
+		                    <select class="form-control" id="role" name="Role">
+			                    <option value="Admin">Admin</option>
+			                    <option value="Doctor">Doctor</option>
+			                    <option value="Assistant">Assistant</option>
+		                    </select>
+	                    </div>
+                    </div>
+                    <div id="doctorCommissionFields" style="display: none;">
+	                    <div class="row">
+		                    <div class="col-md-6 form-group">
+			                    <label for="commissionRate">Maaş Komisyonu</label>
+			                    <input type="number" class="form-control" id="commissionRate" name="CommissionRate">
+		                    </div>
+		                    <div class="col-md-6 form-group">
+			                    <label for="laboratoryCommissionRate">Laboratuvar Komisyonu</label>
+			                    <input type="number" class="form-control" id="laboratoryCommissionRate" name="LaboratoryCommissionRate">
+		                    </div>
+	                    </div>
                     </div>
                 </form>
             </div>
@@ -160,6 +172,17 @@
 	<script src="~/plugins/sweetalert2/sweetalert2.min.js"></script>
     <script>
         $(document).ready(function () {
+            // Rol seçildiğinde komisyon alanlarını göster/gizle
+            $('#role').on('change', function () {
+                if ($(this).val() === 'Doctor') {
+                    $('#doctorCommissionFields').show();
+                } else {
+                    $('#doctorCommissionFields').hide();
+                    $('#commissionRate').val(''); // Diğer rollerde boş bırak
+                    $('#laboratoryCommissionRate').val('');
+                }
+            });
+
             $('#personelTable').DataTable({
                 "paging": true,
                 "lengthChange": true,
@@ -185,7 +208,9 @@
                     HireDate: $('#hireDate').val(),
                     SalaryPaymentDate: $('#salaryPaymentDate').val(),
                     AnnualLeaveDays: $('#annualLeaveDays').val(),
-                    Role: $('#role').val()
+                    Role: $('#role').val(),
+                    CommissionRate: $('#role').val() === 'Doctor' ? $('#commissionRate').val() : null,
+                    LaboratoryCommissionRate: $('#role').val() === 'Doctor' ? $('#laboratoryCommissionRate').val() : null
                 };
 
                 $.ajax({

@@ -16,9 +16,10 @@ namespace HavucDent.Infrastructure.Interfaces
         IRepository<Assistant> Assistants { get; }
         IRepository<Patient> Patients { get; }
         IRepository<Laboratory> Laboratories { get; }
+        IRepository<User> Users { get; }
 
 
-        Task BeginTransactionAsync();
+		Task BeginTransactionAsync();
         Task CommitTransactionAsync();
         Task RollbackTransactionAsync();
         Task SaveChangesAsync();

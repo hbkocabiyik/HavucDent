@@ -17,8 +17,9 @@ namespace HavucDent.Infrastructure.UnitOfWork
         private IRepository<Assistant> _assistants;
         private IRepository<Patient> _patients;
         private IRepository<Laboratory> _laboratories;
+        private IRepository<User> _users;
 
-        public UnitOfWork(HavucDbContext context)
+		public UnitOfWork(HavucDbContext context)
         {
             _context = context;
         }
@@ -29,8 +30,9 @@ namespace HavucDent.Infrastructure.UnitOfWork
         public IRepository<Assistant> Assistants => _assistants ??= new Repository<Assistant>(_context);
         public IRepository<Patient> Patients => _patients ??= new Repository<Patient>(_context);
         public IRepository<Laboratory> Laboratories => _laboratories ??= new Repository<Laboratory>(_context);
+        public IRepository<User> Users => _users ??= new Repository<User>(_context);
 
-        public async Task BeginTransactionAsync()
+		public async Task BeginTransactionAsync()
         {
             _transaction = await _context.Database.BeginTransactionAsync();
         }

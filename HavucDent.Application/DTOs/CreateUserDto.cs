@@ -14,5 +14,7 @@
         public DateTime HireDate { get; set; }
         public DateTime SalaryPaymentDate { get; set; }
         public int AnnualLeaveDays { get; set; }
+        public int? CommissionRate { get; set; }
+        public int? LaboratoryCommissionRate { get; set; }
     }   
 }
