@@ -17,6 +17,14 @@
 	<!-- Theme style -->
 	<link rel="stylesheet" href="/dist/css/adminlte.min.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+	<style>
+		.nav-link.active {
+			background-color: #007bff !important;
+			color: #ffffff !important;
+		}
+	</style>
+
 </head>
 <!--
 `body` tag options:
@@ -182,7 +190,7 @@
 						<img src="/dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
 					</div>
 					<div class="info">
-						<a href="#" class="d-block">Hüseyin Burak KOCABIYIK</a>
+						@await Component.InvokeAsync("UserInfo")
 					</div>
 				</div>
 
@@ -237,35 +245,22 @@
 						</li>
 
 						<li class="nav-item">
-							<a href="#" class="nav-link">
-								<i class="nav-icon fas fa-chart-pie"></i>
+							<a href="@Url.Action("Index", "Personel")" class="nav-link">
+								<i class="nav-icon fas fa-user-md"></i>
 								<p>
 									Personel Yönetimi
-									<i class="right fas fa-angle-left"></i>
 								</p>
 							</a>
-							<ul class="nav nav-treeview">
-								<li class="nav-item">
-									<a href="#" class="nav-link">
-										<i class="far fa-circle nav-icon"></i>
-										<p>Personelleri Listele</p>
-									</a>
-								</li>
-								<li class="nav-item">
-									<a href="#" class="nav-link">
-										<i class="far fa-circle nav-icon"></i>
-										<p>Personel Ekle</p>
-									</a>
-								</li>
-								<li class="nav-item">
-									<a href="#" class="nav-link">
-										<i class="far fa-circle nav-icon"></i>
-										<p>Personel Raporları</p>
-									</a>
-								</li>
-							</ul>
 						</li>
+						<li class="nav-item">
+							<a href="@Url.Action("Index", "Laboratory")" class="nav-link">
+								<i class="nav-icon fas fa-edit"></i>
+								<p>
+									Laboratuvar Yönetimi
+								</p>
+							</a>
 
+						</li>
 
 						<li class="nav-item">
 							<a href="#" class="nav-link">
@@ -296,18 +291,9 @@
 								</li>
 							</ul>
 						</li>
-						
-						<li class="nav-item">
-							<a href="@Url.Action("Index", "Laboratory")" class="nav-link active">
-								<i class="nav-icon fas fa-edit"></i>
-								<p>
-									Laboratuvar Yönetimi
-								</p>
-							</a>
-							
-						</li>
 
-						
+
+
 						@*  <li class="nav-header">EXAMPLES</li> *@
 
 					</ul>
@@ -370,6 +356,21 @@
 
 	<!-- AdminLTE -->
 	<script src="~/dist/js/adminlte.min.js"></script>
+
+	<script>
+		$(document).ready(function () {
+			var currentUrl = window.location.pathname.toLowerCase();
+
+			$(".nav-sidebar .nav-link").each(function () {
+				var linkUrl = $(this).attr("href").toLowerCase();
+				if (linkUrl === currentUrl) {
+					$(this).addClass("active");
+					$(this).closest(".nav-item").addClass("menu-open");
+					$(this).closest(".nav-treeview").prev().addClass("active");
+				}
+			});
+		});
+	</script>
 
 </body>
 </html>
