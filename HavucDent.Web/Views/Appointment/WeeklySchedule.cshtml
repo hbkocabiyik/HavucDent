@@ -1,0 +1,121 @@
+﻿@model IEnumerable<HavucDent.Domain.Entities.Appointment>
+@{
+	Layout = null;
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+<div class="container mt-5" style="max-width: 1800px;">
+	<h2 class="text-center mb-4">Haftalık Randevu Planı</h2>
+
+	<div class="d-flex justify-content-end mb-3">
+		<div class="form-group">
+			<label for="doctorSelect" class="mr-2 font-weight-bold">Doktor Seçin:</label>
+			<select id="doctorSelect" class="form-control">
+				<option value="1">Dr. Ali Veli</option>
+				<option value="2">Dr. Bücür Ayşe</option>
+			</select>
+		</div>
+	</div>
+
+	<!-- Randevu Takvimi -->
+	<div id="weeklySchedule" class="d-flex justify-content-between flex-wrap">
+		@foreach (var day in Enumerable.Range(0, 7))
+		{
+			var date = DateTime.Today.AddDays(day);
+			<div class="day-schedule card shadow-sm mx-1 mb-4" style="width: 220px;">
+				<div class="card-header bg-primary text-white text-center">
+					<h5 class="mb-0">@date.ToString("dd.MM.yyyy")</h5>
+				</div>
+				<div class="card-body appointment-slots">
+					@for (var hour = 9; hour < 22; hour++)
+					{
+						<div class="d-flex justify-content-between mb-2">
+							@for (var minute = 0; minute < 60; minute += 30)
+							{
+								var slotTime = date.AddHours(hour).AddMinutes(minute);
+								var appointment = Model.FirstOrDefault(a => a.AppointmentDate == slotTime);
+								var slotClass = appointment != null && !appointment.IsAvailable ? "booked" : "available";
+								var slotText = appointment != null && !appointment.IsAvailable ? "Dolu" : "Boş";
+
+								<div class="slot @slotClass text-center">
+									<span class="time">@slotTime.ToString("HH:mm") - @slotTime.AddMinutes(30).ToString("HH:mm")</span>
+									<span class="status d-block">@slotText</span>
+								</div>
+							}
+						</div>
+					}
+				</div>
+			</div>
+		}
+	</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.8/signalr.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+<script>
+	const connection = new signalR.HubConnectionBuilder()
+		.withUrl("/appointmentHub")
+		.build();
+
+	connection.on("ReceiveAppointmentsUpdate", () => {
+		location.reload();
+	});
+
+	connection.start().catch(err => console.error(err.toString()));
+
+	document.getElementById("doctorSelect").addEventListener("change", function () {
+		const doctorId = this.value;
+		window.location.href = `/Appointment/WeeklySchedule?doctorId=${doctorId}`;
+	});
+</script>
+
+<style>
+	.container {
+		max-width: 1800px;
+	}
+
+	.day-schedule {
+		border-radius: 8px;
+	}
+
+	.appointment-slots {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	.slot {
+		padding: 6px;
+		border-radius: 5px;
+		text-align: center;
+		font-size: 0.85em;
+		font-weight: bold;
+		width: 100px;
+		margin: 2px;
+	}
+
+	.available {
+		background-color: #28a745;
+		color: white;
+	}
+
+	.booked {
+		background-color: #dc3545;
+		color: white;
+	}
+
+	.time {
+		display: block;
+		font-size: 0.85em;
+		font-weight: normal;
+	}
+
+	.status {
+		font-size: 0.75em;
+		font-style: italic;
+	}
+</style>

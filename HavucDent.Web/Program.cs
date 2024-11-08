@@ -12,6 +12,7 @@ using HavucDent.Infrastructure.Repositories;
 using HavucDent.Infrastructure.UnitOfWork;
 using HavucDent.Web.Extentions;
 using HavucDent.Web.Filters;
+using HavucDent.Web.Hubs;
 using HavucDent.Web.Logging;
 using HavucDent.Web.Middleware;
 using Microsoft.AspNetCore.DataProtection;
@@ -110,6 +111,12 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
+#region SignalR
+
+builder.Services.AddSignalR();
+
+#endregion
+
 #region Services
 
 builder.Services.AddScoped<IProductService, ProductService>();
@@ -183,6 +190,6 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Account}/{action=Login}/{id?}");
 
-
+app.MapHub<AppointmentHub>("/appointmentHub");
 
 app.Run();

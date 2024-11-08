@@ -1,15 +1,28 @@
 ﻿using HavucDent.Domain.Entities;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace HavucDent.Application.Interfaces
 {
     public interface IAppointmentService
     {
-        Task AddAppointmentAsync(Appointment appointment);
-        Task<IEnumerable<Appointment>> GetAllAppointmentsAsync();
-        Task<Appointment> GetAppointmentByIdAsync(int id);
-        Task UpdateAppointmentAsync(Appointment appointment);
-        Task DeleteAppointmentAsync(int id);
-    }
+	    Task AddAppointmentAsync(Appointment appointment);
+
+	    Task<IEnumerable<Appointment>> GetAllAppointmentsAsync();
+
+	    Task<Appointment> GetAppointmentByIdAsync(int id);
+
+	    Task UpdateAppointmentAsync(Appointment appointment);
+
+	    Task DeleteAppointmentAsync(int id);
+
+	    IEnumerable<(DateTime Start, DateTime End)> GetAvailableTimeSlots(DateTime date);
+
+		Task<IEnumerable<Appointment>> GetAvailableAppointmentsAsync();
+
+	    Task<IEnumerable<Appointment>> GetAppointmentsByDoctorAsync(int doctorId);
+
+	    Task<IEnumerable<Appointment>> GetAppointmentsByPatientAsync(int patientId);
+
+		// Haftalık randevuları doktor bazında getirir.
+		Task<IEnumerable<Appointment>> GetWeeklyAppointmentsAsync(DateTime startDate, int doctorId);
+	}
 }
