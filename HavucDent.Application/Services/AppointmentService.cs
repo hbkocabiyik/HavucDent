@@ -78,13 +78,9 @@ namespace HavucDent.Application.Services
 
 
 		// Haftalık randevuları belirli bir doktora göre filtreleme
-		public async Task<IEnumerable<Appointment>> GetWeeklyAppointmentsAsync(DateTime startDate, int doctorId)
+		public async Task<IEnumerable<Appointment>> GetWeeklyAppointmentsAsync(int? doctorId, DateTime weekStart, DateTime weekEnd)
 		{
-			var endDate = startDate.AddDays(7);
-			return await _unitOfWork.Appointments.FindAsync(a =>
-				a.DoctorId == doctorId &&
-				a.AppointmentDate >= startDate &&
-				a.AppointmentDate < endDate);
+			return await _unitOfWork.Appointments.GetAppointmentsByDateRangeAsync(doctorId, weekStart, weekEnd);
 		}
 
 		public IEnumerable<(DateTime Start, DateTime End)> GetAvailableTimeSlots(DateTime date)

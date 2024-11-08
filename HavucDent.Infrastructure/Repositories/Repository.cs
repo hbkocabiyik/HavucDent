@@ -7,7 +7,7 @@ namespace HavucDent.Infrastructure.Repositories
 {
     public class Repository<T> : IRepository<T> where T : class
     {
-        private readonly HavucDbContext _context;
+		protected readonly HavucDbContext _context;
         private readonly DbSet<T> _dbSet;
 
         public Repository(HavucDbContext context)

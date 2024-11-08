@@ -1,13 +1,37 @@
 ﻿@model IEnumerable<HavucDent.Domain.Entities.Appointment>
 @{
 	Layout = null;
+	var currentWeekStart = ViewBag.StartDate != null ? (DateTime)ViewBag.StartDate : DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek + (int)DayOfWeek.Monday);
+	var nextWeekStart = currentWeekStart.AddDays(7);
+	var prevWeekStart = currentWeekStart.AddDays(-7);
+
+	var dayAbbreviations = new Dictionary<DayOfWeek, string>
+	{
+		{ DayOfWeek.Monday, "Pzt" },
+		{ DayOfWeek.Tuesday, "Sal" },
+		{ DayOfWeek.Wednesday, "Çar" },
+		{ DayOfWeek.Thursday, "Per" },
+		{ DayOfWeek.Friday, "Cum" },
+		{ DayOfWeek.Saturday, "Cmt" },
+		{ DayOfWeek.Sunday, "Paz" }
+	};
 }
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
 <div class="container mt-5" style="max-width: 1800px;">
-	<h2 class="text-center mb-4">Haftalık Randevu Planı</h2>
+	<div class="d-flex justify-content-between align-items-center mb-3">
+		<button class="btn btn-primary" id="prevWeek">
+			<i class="fas fa-arrow-left"></i> Önceki Hafta
+		</button>
+
+		<h2 class="text-center mb-0">Haftalık Randevu Planı: @currentWeekStart.ToString("dd.MM.yyyy") - @nextWeekStart.AddDays(-1).ToString("dd.MM.yyyy")</h2>
+
+		<button class="btn btn-primary" id="nextWeek">
+			Sonraki Hafta <i class="fas fa-arrow-right"></i>
+		</button>
+	</div>
 
 	<div class="d-flex justify-content-end mb-3">
 		<div class="form-group">
@@ -23,10 +47,11 @@
 	<div id="weeklySchedule" class="d-flex justify-content-between flex-wrap">
 		@foreach (var day in Enumerable.Range(0, 7))
 		{
-			var date = DateTime.Today.AddDays(day);
+			var date = currentWeekStart.AddDays(day);
+			var dayAbbreviation = dayAbbreviations[date.DayOfWeek];
 			<div class="day-schedule card shadow-sm mx-1 mb-4" style="width: 220px;">
 				<div class="card-header bg-primary text-white text-center">
-					<h5 class="mb-0">@date.ToString("dd.MM.yyyy")</h5>
+					<h5 class="mb-0">@date.ToString("dd.MM.yyyy") @dayAbbreviation</h5>
 				</div>
 				<div class="card-body appointment-slots">
 					@for (var hour = 9; hour < 22; hour++)
@@ -69,8 +94,30 @@
 
 	document.getElementById("doctorSelect").addEventListener("change", function () {
 		const doctorId = this.value;
-		window.location.href = `/Appointment/WeeklySchedule?doctorId=${doctorId}`;
+		window.location.href = `/Appointment/WeeklySchedule?doctorId=${doctorId}&startDate=${getFormattedDate()}`;
 	});
+
+	function changeWeek(startDate) {
+		window.location.href = `/Appointment/WeeklySchedule?startDate=${startDate}`;
+	}
+
+	function getFormattedDate() {
+		const date = new Date("@currentWeekStart.ToString("yyyy-MM-dd")");
+		return date.toISOString().split('T')[0];
+	}
+
+	document.getElementById("prevWeek").addEventListener("click", function () {
+		const currentStartDate = new Date(getFormattedDate());
+		currentStartDate.setDate(currentStartDate.getDate() - 7);
+		changeWeek(currentStartDate.toISOString().split('T')[0]);
+	});
+
+	document.getElementById("nextWeek").addEventListener("click", function () {
+		const currentStartDate = new Date(getFormattedDate());
+		currentStartDate.setDate(currentStartDate.getDate() + 7);
+		changeWeek(currentStartDate.toISOString().split('T')[0]);
+	});
+
 </script>
 
 <style>

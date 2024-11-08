@@ -23,6 +23,6 @@ namespace HavucDent.Application.Interfaces
 	    Task<IEnumerable<Appointment>> GetAppointmentsByPatientAsync(int patientId);
 
 		// Haftalık randevuları doktor bazında getirir.
-		Task<IEnumerable<Appointment>> GetWeeklyAppointmentsAsync(DateTime startDate, int doctorId);
+		Task<IEnumerable<Appointment>> GetWeeklyAppointmentsAsync(int? doctorId, DateTime weekStart, DateTime weekEnd);
 	}
 }

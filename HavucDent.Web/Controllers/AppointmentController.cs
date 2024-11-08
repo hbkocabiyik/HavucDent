@@ -106,10 +106,31 @@ namespace HavucDent.Web.Controllers
 		}
 
 		// Haftalık randevuları getirir
-		public async Task<IActionResult> WeeklySchedule(int doctorId, DateTime? startDate)
+		//public async Task<IActionResult> WeeklySchedule(int doctorId = 0, DateTime? startDate = null)
+		//{
+		//	var weekStartDate = startDate ?? DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek + (int)DayOfWeek.Monday);
+		//	var weekEndDate = weekStartDate.AddDays(7);
+
+		//	var appointments = await _appointmentService.GetWeeklyAppointmentsAsync(doctorId, weekStartDate, weekEndDate);
+		//	ViewBag.CurrentWeekStart = weekStartDate;
+
+		//	return View(appointments);
+		//}
+
+
+		[HttpGet]
+		public async Task<IActionResult> WeeklySchedule(DateTime? startDate, int? doctorId)
 		{
-			startDate ??= DateTime.Today;
-			var appointments = await _appointmentService.GetWeeklyAppointmentsAsync(startDate.Value, doctorId);
+			// startDate değeri yoksa, Pazartesi olan en yakın haftanın başlangıç tarihini kullanır
+			DateTime weekStartDate = startDate ?? DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek + (int)DayOfWeek.Monday);
+			DateTime weekEndDate = weekStartDate.AddDays(6);
+
+			var appointments = await _appointmentService.GetWeeklyAppointmentsAsync(doctorId, weekStartDate, weekEndDate);
+
+			ViewBag.DoctorId = doctorId;
+			ViewBag.StartDate = weekStartDate;
+			ViewBag.EndDate = weekEndDate;
+
 			return View(appointments);
 		}
 
