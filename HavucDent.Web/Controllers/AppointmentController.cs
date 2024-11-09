@@ -105,36 +105,39 @@ namespace HavucDent.Web.Controllers
 			return RedirectToAction(nameof(Index));
 		}
 
-		// Haftalık randevuları getirir
-		//public async Task<IActionResult> WeeklySchedule(int doctorId = 0, DateTime? startDate = null)
-		//{
-		//	var weekStartDate = startDate ?? DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek + (int)DayOfWeek.Monday);
-		//	var weekEndDate = weekStartDate.AddDays(7);
+        // Haftalık randevuları getirir
+        //public async Task<IActionResult> WeeklySchedule(int doctorId = 0, DateTime? startDate = null)
+        //{
+        //	var weekStartDate = startDate ?? DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek + (int)DayOfWeek.Monday);
+        //	var weekEndDate = weekStartDate.AddDays(7);
 
-		//	var appointments = await _appointmentService.GetWeeklyAppointmentsAsync(doctorId, weekStartDate, weekEndDate);
-		//	ViewBag.CurrentWeekStart = weekStartDate;
+        //	var appointments = await _appointmentService.GetWeeklyAppointmentsAsync(doctorId, weekStartDate, weekEndDate);
+        //	ViewBag.CurrentWeekStart = weekStartDate;
 
-		//	return View(appointments);
-		//}
+        //	return View(appointments);
+        //}
 
 
-		[HttpGet]
-		public async Task<IActionResult> WeeklySchedule(DateTime? startDate, int? doctorId)
-		{
-			// startDate değeri yoksa, Pazartesi olan en yakın haftanın başlangıç tarihini kullanır
+        [HttpGet]
+        public async Task<IActionResult> WeeklySchedule(DateTime? startDate, int? doctorId)
+        {
+	        // startDate değeri yoksa, Pazartesi olan en yakın haftanın başlangıç tarihini kullanır
 			DateTime weekStartDate = startDate ?? DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek + (int)DayOfWeek.Monday);
-			DateTime weekEndDate = weekStartDate.AddDays(6);
+            DateTime weekEndDate = weekStartDate.AddDays(7);
 
-			var appointments = await _appointmentService.GetWeeklyAppointmentsAsync(doctorId, weekStartDate, weekEndDate);
+            var weeklyAppointments = await _appointmentService.GetWeeklyAppointmentsAsync(weekStartDate, weekEndDate, doctorId);
+            var doctors = await _appointmentService.GetAllDoctorsAsync();
 
-			ViewBag.DoctorId = doctorId;
-			ViewBag.StartDate = weekStartDate;
-			ViewBag.EndDate = weekEndDate;
+            ViewBag.DoctorId = doctorId;
+            ViewBag.StartDate = weekStartDate;
+            ViewBag.EndDate = weekEndDate;
+            ViewBag.Doctors = doctors;
 
-			return View(appointments);
-		}
+            return View(weeklyAppointments);
+        }
 
-		public async Task<IActionResult> AddAppointment(Appointment appointment)
+
+        public async Task<IActionResult> AddAppointment(Appointment appointment)
 		{
 			await _appointmentService.AddAppointmentAsync(appointment);
 			await _appointmentHubContext.Clients.All.SendAsync("ReceiveAppointmentsUpdate");

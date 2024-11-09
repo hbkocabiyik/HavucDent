@@ -77,13 +77,37 @@ namespace HavucDent.Application.Services
 		}
 
 
-		// Haftalık randevuları belirli bir doktora göre filtreleme
-		public async Task<IEnumerable<Appointment>> GetWeeklyAppointmentsAsync(int? doctorId, DateTime weekStart, DateTime weekEnd)
-		{
-			return await _unitOfWork.Appointments.GetAppointmentsByDateRangeAsync(doctorId, weekStart, weekEnd);
-		}
+        // Haftalık randevuları belirli bir doktora göre filtreleme
+        public async Task<Dictionary<int, IEnumerable<Appointment>>> GetWeeklyAppointmentsAsync(DateTime weekStart, DateTime weekEnd, int? doctorId = null)
+        {
+            var weeklyAppointments = new Dictionary<int, IEnumerable<Appointment>>();
 
-		public IEnumerable<(DateTime Start, DateTime End)> GetAvailableTimeSlots(DateTime date)
+            if (doctorId.HasValue)
+            {
+                var appointments = await _unitOfWork.Appointments.GetAppointmentsByDateRangeAsync(doctorId.Value, weekStart, weekEnd);
+                weeklyAppointments[doctorId.Value] = appointments;
+            }
+            else
+            {
+                var doctors = await _unitOfWork.Doctors.GetAllAsync();
+                foreach (var doctor in doctors)
+                {
+                    var appointments = await _unitOfWork.Appointments.GetAppointmentsByDateRangeAsync(doctor.Id, weekStart, weekEnd);
+                    weeklyAppointments[doctor.Id] = appointments;
+                }
+            }
+
+            return weeklyAppointments;
+        }
+
+
+        // Tüm doktor listesi
+        public async Task<IEnumerable<Doctor>> GetAllDoctorsAsync()
+        {
+            return await _unitOfWork.Doctors.GetAllAsync();
+        }
+
+        public IEnumerable<(DateTime Start, DateTime End)> GetAvailableTimeSlots(DateTime date)
 		{
 			var startTime = date.Date.AddHours(9); // Saat 9:00
 			var endTime = date.Date.AddHours(22); // Saat 22:00

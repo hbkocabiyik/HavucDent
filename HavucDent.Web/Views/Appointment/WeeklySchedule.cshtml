@@ -1,7 +1,8 @@
-﻿@model IEnumerable<HavucDent.Domain.Entities.Appointment>
+﻿@model IDictionary<int, IEnumerable<HavucDent.Domain.Entities.Appointment>>
+
 @{
 	Layout = null;
-	var currentWeekStart = ViewBag.StartDate != null ? (DateTime)ViewBag.StartDate : DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek + (int)DayOfWeek.Monday);
+	var currentWeekStart = (DateTime)ViewBag.StartDate;
 	var nextWeekStart = currentWeekStart.AddDays(7);
 	var prevWeekStart = currentWeekStart.AddDays(-7);
 
@@ -15,6 +16,8 @@
 		{ DayOfWeek.Saturday, "Cmt" },
 		{ DayOfWeek.Sunday, "Paz" }
 	};
+
+	var doctors = ViewBag.Doctors as List<HavucDent.Domain.Entities.Doctor>;
 }
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -37,44 +40,55 @@
 		<div class="form-group">
 			<label for="doctorSelect" class="mr-2 font-weight-bold">Doktor Seçin:</label>
 			<select id="doctorSelect" class="form-control">
-				<option value="1">Dr. Ali Veli</option>
-				<option value="2">Dr. Bücür Ayşe</option>
+				<option value="">Tüm Doktorlar</option>
+				@foreach (var doctor in doctors)
+				{
+					<!option value="@doctor.Id" @(doctor.Id == (int?)ViewBag.DoctorId ? "selected=\"selected\"" : "")>
+						Dr. @doctor.FirstName @doctor.LastName
+					</!option>
+				}
 			</select>
 		</div>
 	</div>
 
 	<!-- Randevu Takvimi -->
-	<div id="weeklySchedule" class="d-flex justify-content-between flex-wrap">
-		@foreach (var day in Enumerable.Range(0, 7))
-		{
-			var date = currentWeekStart.AddDays(day);
-			var dayAbbreviation = dayAbbreviations[date.DayOfWeek];
-			<div class="day-schedule card shadow-sm mx-1 mb-4" style="width: 220px;">
-				<div class="card-header bg-primary text-white text-center">
-					<h5 class="mb-0">@date.ToString("dd.MM.yyyy") @dayAbbreviation</h5>
-				</div>
-				<div class="card-body appointment-slots">
-					@for (var hour = 9; hour < 22; hour++)
-					{
-						<div class="d-flex justify-content-between mb-2">
-							@for (var minute = 0; minute < 60; minute += 30)
+	@foreach (var doctorAppointments in Model)
+	{
+		<div class="doctor-schedule mb-5" style="width: 100%;">
+			<h4 class="text-center">Dr. @(doctors.FirstOrDefault(d => d.Id == doctorAppointments.Key)?.FirstName) @(doctors.FirstOrDefault(d => d.Id == doctorAppointments.Key)?.LastName)</h4>
+			<div class="d-flex justify-content-start flex-wrap">
+				@foreach (var day in Enumerable.Range(0, 7))
+				{
+					var date = currentWeekStart.AddDays(day);
+					var dayAbbreviation = dayAbbreviations[date.DayOfWeek];
+					<div class="day-schedule card shadow-sm mx-1 mb-4" style="width: 220px;">
+						<div class="card-header bg-primary text-white text-center">
+							<h5 class="mb-0">@date.ToString("dd.MM.yyyy") @dayAbbreviation</h5>
+						</div>
+						<div class="card-body appointment-slots">
+							@for (var hour = 9; hour < 22; hour++)
 							{
-								var slotTime = date.AddHours(hour).AddMinutes(minute);
-								var appointment = Model.FirstOrDefault(a => a.AppointmentDate == slotTime);
-								var slotClass = appointment != null && !appointment.IsAvailable ? "booked" : "available";
-								var slotText = appointment != null && !appointment.IsAvailable ? "Dolu" : "Boş";
+								<div class="d-flex justify-content-between mb-2">
+									@for (var minute = 0; minute < 60; minute += 30)
+									{
+										var slotTime = date.AddHours(hour).AddMinutes(minute);
+										var appointment = doctorAppointments.Value.FirstOrDefault(a => a.AppointmentDate == slotTime);
+										var slotClass = appointment != null && !appointment.IsAvailable ? "booked" : "available";
+										var slotText = appointment != null && !appointment.IsAvailable ? "Dolu" : "Boş";
 
-								<div class="slot @slotClass text-center">
-									<span class="time">@slotTime.ToString("HH:mm") - @slotTime.AddMinutes(30).ToString("HH:mm")</span>
-									<span class="status d-block">@slotText</span>
+										<div class="slot @slotClass text-center">
+											<span class="time">@slotTime.ToString("HH:mm") - @slotTime.AddMinutes(30).ToString("HH:mm")</span>
+											<span class="status d-block">@slotText</span>
+										</div>
+									}
 								</div>
 							}
 						</div>
-					}
-				</div>
+					</div>
+				}
 			</div>
-		}
-	</div>
+		</div>
+	}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.8/signalr.min.js"></script>
@@ -82,47 +96,32 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 
 <script>
-	const connection = new signalR.HubConnectionBuilder()
-		.withUrl("/appointmentHub")
-		.build();
-
-	connection.on("ReceiveAppointmentsUpdate", () => {
-		location.reload();
-	});
-
-	connection.start().catch(err => console.error(err.toString()));
-
 	document.getElementById("doctorSelect").addEventListener("change", function () {
 		const doctorId = this.value;
-		window.location.href = `/Appointment/WeeklySchedule?doctorId=${doctorId}&startDate=${getFormattedDate()}`;
+		const startDate = "@currentWeekStart.ToString("yyyy-MM-dd")";
+		window.location.href = `/Appointment/WeeklySchedule?doctorId=${doctorId}&startDate=${startDate}`;
 	});
 
-	function changeWeek(startDate) {
-		window.location.href = `/Appointment/WeeklySchedule?startDate=${startDate}`;
-	}
-
-	function getFormattedDate() {
-		const date = new Date("@currentWeekStart.ToString("yyyy-MM-dd")");
-		return date.toISOString().split('T')[0];
-	}
-
 	document.getElementById("prevWeek").addEventListener("click", function () {
-		const currentStartDate = new Date(getFormattedDate());
-		currentStartDate.setDate(currentStartDate.getDate() - 7);
-		changeWeek(currentStartDate.toISOString().split('T')[0]);
+		const startDate = "@prevWeekStart.ToString("yyyy-MM-dd")";
+		const doctorId = "@ViewBag.DoctorId";
+		window.location.href = `/Appointment/WeeklySchedule?startDate=${startDate}&doctorId=${doctorId}`;
 	});
 
 	document.getElementById("nextWeek").addEventListener("click", function () {
-		const currentStartDate = new Date(getFormattedDate());
-		currentStartDate.setDate(currentStartDate.getDate() + 7);
-		changeWeek(currentStartDate.toISOString().split('T')[0]);
+		const startDate = "@nextWeekStart.ToString("yyyy-MM-dd")";
+		const doctorId = "@ViewBag.DoctorId";
+		window.location.href = `/Appointment/WeeklySchedule?startDate=${startDate}&doctorId=${doctorId}`;
 	});
-
 </script>
 
 <style>
 	.container {
 		max-width: 1800px;
+	}
+
+	.doctor-schedule {
+		border-radius: 8px;
 	}
 
 	.day-schedule {
