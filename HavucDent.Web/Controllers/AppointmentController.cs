@@ -1,9 +1,9 @@
 ﻿using HavucDent.Application.Interfaces;
 using HavucDent.Domain.Entities;
 using HavucDent.Web.Hubs;
+using HavucDent.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace HavucDent.Web.Controllers
 {
@@ -11,11 +11,19 @@ namespace HavucDent.Web.Controllers
 	{
 		private readonly IAppointmentService _appointmentService;
 		private readonly IHubContext<AppointmentHub> _appointmentHubContext;
+        private readonly IPatientService _patientService;
+        private readonly IUserService _userService;
 
-		public AppointmentController(IAppointmentService appointmentService, IHubContext<AppointmentHub> appointmentHubContext)
+        public AppointmentController(
+            IAppointmentService appointmentService, 
+            IHubContext<AppointmentHub> appointmentHubContext, 
+            IPatientService patientService, 
+            IUserService userService)
 		{
 			_appointmentService = appointmentService;
 			_appointmentHubContext = appointmentHubContext;
+			_patientService = patientService;
+			_userService = userService;
 		}
 
 		// GET: Appointment/Index
@@ -153,5 +161,62 @@ namespace HavucDent.Web.Controllers
 
 			return RedirectToAction("WeeklySchedule", new { doctorId });
 		}
-	}
+
+
+        #region Ajax & SignalR Services
+
+        [HttpGet]
+        public async Task<IActionResult> GetPatientByTc(string tcNumber)
+        {
+            var patient = await _patientService.GetPatientByTcAsync(tcNumber);
+
+            if (patient != null)
+                return Json(new { exists = true, patient });
+            
+
+            return Json(new { exists = false });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateAppointment(AppointmentViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return Json(new { success = false });
+
+            var patient = new Patient
+            {
+	            TcKimlikNo = model.TcNumber,
+	            FirstName = model.FirstName,
+	            LastName = model.LastName,
+	            Email = model.Email,
+	            PhoneNumber = model.Phone,
+	            Address = model.Address,
+	            BirthDate = model.BirthDate,
+	            CreateDate = DateTime.Now,
+	            UserId = _userService.GetLoggedUserId()
+            };
+
+            await _patientService.AddPatientAsync(patient);
+
+			var appointment = new Appointment
+            {
+                AppointmentDate = model.AppointmentDate,
+                DoctorId = model.DoctorId,
+                PatientId = model.PatientId,
+                AssistantId = _userService.GetLoggedUserId(),
+                IsAvailable = model.IsAvailable,
+                TotalFee = model.TotalFee,
+                PaymentStatus = model.PaymentStatus,
+                IsCompleted = model.IsCompleted,
+				CreateDate = DateTime.Now
+            };
+
+            var result = await _appointmentService.CreateAppointmentAsync(appointment);
+            await _appointmentHubContext.Clients.All.SendAsync("ReceiveAppointmentsUpdate");
+
+            return Json(new { success = result });
+        }
+
+        #endregion
+    }
 }

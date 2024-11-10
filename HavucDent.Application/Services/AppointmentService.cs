@@ -122,7 +122,14 @@ namespace HavucDent.Application.Services
 			return timeSlots;
 		}
 
-		public async Task<IEnumerable<Appointment>> GetAvailableAppointmentsAsync()
+        public async Task<bool> CreateAppointmentAsync(Appointment appointment)
+        {
+            _unitOfWork.Appointments.AddAsync(appointment);
+
+            return await _unitOfWork.SaveChangesWithIntAsync() > 0;
+        }
+
+        public async Task<IEnumerable<Appointment>> GetAvailableAppointmentsAsync()
 		{
 			return await _unitOfWork.Appointments.FindAsync(a => a.IsAvailable);
 		}

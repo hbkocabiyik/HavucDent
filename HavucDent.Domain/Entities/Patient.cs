@@ -10,8 +10,19 @@ namespace HavucDent.Domain.Entities
 	    public string Email { get; set; }
 	    public string PhoneNumber { get; set; }
 	    public string Address { get; set; }
-	    public bool IsPaymentCompleted { get; set; } // Ödeme tamamlandı mı?
+	    public bool IsPaymentCompleted { get; set; }
+        public DateTime BirthDate { get; set; }
+        public DateTime CreateDate { get; set; }
+        public int? UserId { get; set; } 
 
-	    public virtual ICollection<Appointment> Appointments { get; set; } // Hastanın randevuları
-	}
+
+        #region Navigation Properties
+
+        public virtual User CreatedByUser { get; set; }
+
+        public virtual ICollection<Appointment> Appointments { get; set; } // Hastanın randevuları
+
+        #endregion
+
+    }
 }

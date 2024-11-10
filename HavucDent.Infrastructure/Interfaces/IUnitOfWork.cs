@@ -1,5 +1,6 @@
 ﻿using HavucDent.Domain.Entities;
 using HavucDent.Infrastructure.Repositories;
+using System.Linq.Expressions;
 
 namespace HavucDent.Infrastructure.Interfaces
 {
@@ -22,5 +23,7 @@ namespace HavucDent.Infrastructure.Interfaces
 		Task CommitTransactionAsync();
 		Task RollbackTransactionAsync();
 		Task SaveChangesAsync();
-	}
+
+        Task<int> SaveChangesWithIntAsync();
+    }
 }

@@ -14,7 +14,9 @@ namespace HavucDent.Application.Interfaces
 
 	    Task DeleteAppointmentAsync(int id);
 
-	    IEnumerable<(DateTime Start, DateTime End)> GetAvailableTimeSlots(DateTime date);
+        Task<bool> CreateAppointmentAsync(Appointment appointment);
+
+        IEnumerable<(DateTime Start, DateTime End)> GetAvailableTimeSlots(DateTime date);
 
 		Task<IEnumerable<Appointment>> GetAvailableAppointmentsAsync();
 

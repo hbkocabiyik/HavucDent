@@ -19,7 +19,7 @@ namespace HavucDent.Domain.Entities
 	    public int? AssistantId { get; set; } // Randevuyu atayan asistan
 	    public virtual Assistant Assistant { get; set; } // Asistan bilgisi
 
-	    //public DateTime InsertTime { get; set; } // Randevu kayıt tarihi
+	    public DateTime CreateDate { get; set; } // Randevu kayıt tarihi
 
 	    public virtual ICollection<Product> UsedProducts { get; set; } // Randevuda kullanılan ürünler
 

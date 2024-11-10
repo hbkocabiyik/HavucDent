@@ -57,5 +57,10 @@ namespace HavucDent.Infrastructure.UnitOfWork
 			_transaction?.Dispose();
 			_context.Dispose();
 		}
-	}
+
+        public async Task<int> SaveChangesWithIntAsync()
+        {
+            return await _context.SaveChangesAsync();
+        }
+    }
 }
